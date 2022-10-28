@@ -1,0 +1,437 @@
+\documentclass[oneside,12pt,a4paper]{book}
+\usepackage[utf8]{inputenc}
+\labelformat{section}{\thechapter.#1}
+\usepackage{listings}
+\usepackage{FEE}
+\pagestyle{CTU_FEE_pagestyle}
+
+%\usepackage{showframe}
+\input{acronyms}
+
+
+\coursename{Algoritmy digitální kartografie a GIS}
+
+
+\subject{Úloha č. 2:}
+\title{Generalizace budov}
+
+\author{Bc. Taťána Bláhová, Bc. Tomáš Krauz, Bc. Adéla Kučerová}
+
+
+\date{\today} % keep commented to add current date, empty for no date, input version of file (preferred)
+\lstset{ 
+showstringspaces=false, 
+numbers=left, 
+numberstyle=\ttfamily\small, 
+stepnumber=1, 
+firstnumber=last, 
+breaklines=T} 
+
+
+
+
+\begin{document}
+% \let\cleardoublepage\clearpage
+\maketitle
+
+    \vspace{-2cm}
+    \vfill
+    \begingroup
+    
+    \tableofcontents
+    % \printacronyms
+    \vspace{-0.5cm}
+    \printglossary[type=\acronymtype,title=\Large Acronyms]
+    \endgroup
+    \vspace{-1cm}
+% \chapter{Example}
+% \input{example.tex}
+
+
+\clearpage
+\chapter{Zadání}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/zadani2.PNG}
+    \caption{Zadání úlohy}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+
+
+\chapter{Bonusové úlohy} 
+\begin{enumerate}
+    \item \emph{Generalizace budov metodou Longest Edge.    [+5b]}
+    \item \emph{Generalizace budov metodou Weighted Bisector.   [+8]}
+    \item \emph{Implementace další metody konstrukce konvexní obálky.   [+5]}
+\end{enumerate}
+
+
+\chapter{Popis a rozbor problému} 
+Na vstupu je množina polygonů (budov) $B = \{B_i\}_{i=1}^n$, kde budova $B_i  = \{p[x,y]_{i,j}\}_{j=i}^m$.\par
+Generalizace budovy, tj. zjednodušení tvaru polygonu za účelem redukce množství dat, je provedena pomocí konvexní obálky, jako první odhad tvaru prostorového jevu. Konvexní obálka je definována jako nejmenší konvexní mnohoúhelník P obsahující S (tj. neexistuje $P' \subset P$ splňující definici) množiny H konečné množiny S v $\emph{E}^2$. Množina S je označena jako konvexní, pokud spojnice libovolných dvou prvků leží zcela uvnitř této množiny. Jedná se tedy o ohraničující mnohoúhelník P s nejmenší plochou.\par
+Generalizace je provedena pro každou budovu.\par
+
+
+
+\chapter{Popis použitých algoritmů}
+\label{kapitola: Popis použitých algoritmů}
+
+\section{Hledání konvexní obálky}
+
+K hledání konvexní obálky byla využita metoda \textbf{Jarvis scan}.\par
+Jako předzpracování je nalezen pivot \emph{q} jako $q = min_{\forall p_i \in S }(y_i)$. Takto nalezený bod \emph{q} je přidán do konvexní obálky H. Následně je vybrán bod $p_{j-1}$ pro vytvoření přímky rovnoběžné s osou X. Přímka je daná body $q$ a $p_{j-1}$.\par
+Pomocí cyklu je přidán do konvexní obálky bod s maximálním úhlem $\angle (p_{j-1}, p_j, p_{j+1})$.\par
+Postup je popsán pomocí vzorců na stránkách \cite{plp} .
+
+\bigskip
+
+Jarvis scan - implementace $:$
+\begin{enumerate}
+\item Nalezení pivota q, $q = min(y_i)$,
+\item Přidání $q \rightarrow H$,
+\item Inicializace $p_{j-1} \in X, p_j = q, p_{j+1} = p_{j-1}$,
+\item Opakování, dokud $p_{j+1} \neq q$ $:$
+\item \quad Nalezení $p_{j+1} = arg max_{\forall p_i \in P } \angle (p_{j-1},p_j, pi)$
+\item \quad Přidání $p_{j+1} \rightarrow H$
+\item \quad $p_{j-1}=p_j ; p_j = p_{j+1}$.
+\end{enumerate}
+
+
+\section{Generalizace budov}
+\subsection{Metoda Minimum Area Enclosing Rectangle}
+Pomocí této metody je zjištěn hlavní směr budovy. Směr je určen jako směr delší ze stran ohraničujícího obdélníku s minimální plochou. \par
+
+\bigskip
+
+Minimum Area Enclosing Rectangle - implementace $:$
+
+\begin{enumerate}
+\item Nalezení H = CH(S)
+\item Inicializace R = MMB(S), \underline{A} = A(MMB(S))
+\item Opakování pro každou hranu $\emph{e}$ obálky H:
+\item \quad Spočtení směrnice $\sigma$ hrany hrany $\emph{e}$,
+\item \quad Otočení S o úhel -$\sigma: S_r =R(-\sigma)S$
+\item \quad Nalezení MMB($S_r$) a určení A(MMB($S_r$))
+\item \quad Pokud $A < \underline{A}$:
+\item \quad \quad \quad \underline{A} = A, \underline{MMB}=MMB, \underline{$\sigma$}= $\sigma$
+\item R = R(\underline{$\sigma$})\underline{MMB}
+
+\end{enumerate}
+
+\bigskip
+
+\subsection{Metoda Longest Edge}
+Jedná se o detekci hlavního směru budovy, tj. nejdelší hrana polygonu, který budovu reprezentuje. Druhý hlavní směr je na ni kolmý.\par
+Neplatí, že hlavní strana reprezentuje hlavní směr.\par
+Metoda nedosahuje nejlepších výsledků při netypických tvarech polygonu.\par
+
+\bigskip
+
+Longest Edge - implementace $:$
+
+\begin{enumerate}
+\item Inicializace vektoru dvojic délka hrany a směrnice přímky
+\item Opakování pro všechny body polygonu:
+\item \quad \begin{equation}
+    s_j = \sqrt{(x_{j+1}-x_j)^2 + (y_{j+1}-y_j)^2}
+\end{equation}
+\item \quad \quad \begin{equation}
+    \sigma_j = \arctan2 \frac{y_{j+1-y_j}}{x_{j+1}-x_j}
+\end{equation}
+\item Seřazení dvojic podle velikosti $s_j$
+\item Uložení $\sigma_{s,max}$, tj. poslední prvek ve vektoru dvojic
+\item Vytvoření enclosing rectangle (ohraničující obdélník)
+\end{enumerate}
+
+\bigskip
+
+
+\subsection{Metoda Wall Average}
+Všem stranám polygonu (budovy) je spočtena směrnice $\sigma_i$, na kterou je aplikována metoda $mod(\frac{\Phi}{2})$ pro nalezení zbytku po dělení. Výsledný směr natočení polygonu je pak dán váženým průměrem těchto zbytků, kde roli váhy zastupuje délka příslušné strany.\par
+Metoda je komplexní a citlivá na úhly různé od úhlů pravých.\par
+
+\bigskip
+
+Wall Average - implementace $:$
+
+\begin{enumerate}
+\item Inicializace pro $\sigma = 0$ ... směr natočení budovy;
+\item \quad \quad \quad $\Sigma s_i = 0$ ... obvod budovy;
+\item \quad \quad \quad $\sigma_{}$ ... směrnice první hrany budovy 
+\item Opakování přes všechny body polygonu:
+\item \quad \begin{equation}
+    s_j = \sqrt{(x_{j+1}-x_j)^2 + (y_{j+1}-y_j)^2}
+\end{equation}
+\item \quad \begin{equation}
+    \sigma_j = \arctan2 \frac{y_{j+1-y_j}}{x_{j+1}-x_j}
+\end{equation}
+\item \quad \begin{equation}
+    d \sigma_i= \sigma_i-\sigma
+\end{equation}
+\item \quad \begin{equation}
+    k_i=round \frac{2*d \sigma_i}{\pi}
+\end{equation}
+\item \quad \begin{equation}
+    r_i=d \sigma_i - k_i*\frac{\pi}{2}
+\end{equation}
+\item \quad \begin{equation}
+    \sigma+=r_i*s_i
+\end{equation}
+\item \quad \begin{equation}
+    \Sigma s_i+=s_i
+\end{equation}
+\item \begin{equation}
+    \sigma = \sigma_{}+\frac{\sigma}{\Sigma s_i}-\textit{váž.průměr}
+\end{equation}
+\item Vytvoření enclosing rectangle (ohraničující obdélník).
+\end{enumerate}
+
+\bigskip
+
+\chapter{Problematické situace a jejich rozbor} 
+Při tvorbě aplikace se nepodařilo spustit metody pro načtený soubor dat. Aplikace funguje pouze pro manuálně naklikaný polygon.\par
+
+
+
+\chapter{Vzhled aplikace}
+Spuštěním aplikace se otevře okno "Building Simplify". Okno je rozděleno na dvě části. Na levé straně se nachází Canvas, část vyhrazená pro vykreslování geometrie. Vpravo je menu, které obsahuje tlačítka tříd QPushButton a rolovací menu QComboBox.\par
+Tlačítka QPushButton slouží k nahrání dat, generalizaci, pročištění grafického okna (Canvas). Rolovací menu slouží k výběru metody generalizace.
+
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/SB_open.png}
+    \caption{Vzhled aplikace}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+
+\chapter{Vstupní data a výstupní} 
+Pomocí tlačítka Load file lze do aplikace nahrát soubor polygonů ve formátu CSV. Ukázková data jsou polygony budov v oblasti Praha 6, Dejvice. Souřadnice jsou v S-JTSK. \par
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=500]{fig/data.png}
+    \caption{Vstupní data}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+
+%chapter{Výstupní data} 
+Výstupem aplikace je grafické znázornění nahraných objektů (polygonů) a příslušná generalizace pro individuálně naklikaný polygon.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/SB_load_file.PNG}
+    \caption{Výstupní data}
+    \label{fig:Výstupní data - nahrání souboru}
+\end{figure}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/MAR_try.PNG}
+    \caption{Výstupní data}
+    \label{fig:Výstupní data - Minimum Area Rectangle}
+\end{figure}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/LE_try.PNG}
+    \caption{Výstupní data}
+    \label{fig:Výstupní data - Longest Edge}
+\end{figure}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/WA_try.PNG}
+    \caption{Výstupní data}
+    \label{fig:Výstupní data - Wall Average}
+\end{figure}
+
+Výsledky jsou ukázány pro jeden polygon.\par
+\\ 
+\pagebreak
+
+\clearpage
+\chapter{Dokumentace} 
+\section{Třída Algorithms}
+    \begin{itemize}
+    \item $int \;getPointLinePosition(QPointF \; \&p1, QPointF \;\&p2, QPointF \;\&q)$
+    \begin{itemize}
+    \item analyzuje vzájemný vztah bodu a přímky
+    \end{itemize}
+
+    \item $double\; getTwoLinesAngle(QPointF \; \&p1,QPointF \; \&p2,QPointF \; \&p3,QPointF \; \&p4)$
+        \begin{itemize}
+    \item vypočítá úhel mezi dvěma vektory
+    \end{itemize}
+    
+    \item $QPolygonF createCH(QPolygonF \&pol)$
+        \begin{itemize}
+    \item vypočítá konvexní obálku polygonu
+    \end{itemize}
+
+    \item $QPolygonF\; rotate(QPolygonF\; \&pol, double\; sig)$
+    \begin{itemize}
+    \item pootočí množinu o úhel
+    \end{itemize}
+    
+    \item $double\; getArea(QPolygonF\; \&pol)$
+    \begin{itemize}
+    \item vypočítá plochu polygonu
+    \end{itemize}
+    
+    \item $tuple<QPolygonF, double>\; minMaxBox(QPolygonF\; \&pol)$
+    \begin{itemize}
+    \item vytvoří MinMaxBox
+    \end{itemize}
+    
+    \item $QPolygonF\; minAreaEnclosingRectangle(QPolygonF\; \&pol)$
+    \begin{itemize}
+    \item vytvoří minimální ohraničující obdélník
+    \end{itemize}
+    
+    \item $QPolygonF\; resizeRectangle(QPolygonF\; \&rec,\; double\; areaB)$
+    \begin{itemize}
+    \item změní velikost obdélníku
+    \end{itemize}
+    
+    \item $QPolygonF\; resizeMinAreaEnclosingRectangle(QPolygonF\; \&pol)$
+    \begin{itemize}
+    \item změní velikost minimálního ohraničujícího obdélníku
+    \end{itemize}
+    
+    \item $QPolygonF\; wallAverage(QPolygonF\; \&pol)$
+    \begin{itemize}
+    \item provede metodu Wall Average
+    \end{itemize}
+    
+    \item $QPolygonF\; longestEdge(QPolygonF\; \&pol)$
+    \begin{itemize}
+    \item provede metodu Longest Edge
+    \end{itemize}
+    
+    \end{itemize}
+
+
+\bigskip
+
+   \section{Třída Draw} 
+    \begin{itemize}
+    \item $void\; mousePressEvent(QMouseEvent *event)$
+    \begin{itemize}
+    \item vrátí souřadnice kurzoru po kliknutí na Canvas
+    \end{itemize}
+    \item $void\; paintEvent(QPaintEvent *event)$
+    \begin{itemize}
+    \item vykreslí polygony na Canvas
+    \end{itemize}
+    
+    \item $QPolygonF\; getCH()\{return\; ch;\}$
+    \begin{itemize}
+    \item vykreslí konvexní obálku Convex Hull
+    \end{itemize}
+    
+    \item $QPolygonF\; getMAER()\{return\; er;\}$
+    \begin{itemize}
+    \item vykreslí Minimum Area Enclosing Rectangle
+    \end{itemize}
+    
+    \item $QPolygonF\; getBuild(){return\; building;}$
+    \begin{itemize}
+    \item vykreslí polygony na Canvas
+    \end{itemize}
+
+    \item $void\; setCH(QPolygonF\; \&ch_)\{ch=ch_;\}$
+    \begin{itemize}
+    \item vrátí Convex Hull
+    \end{itemize}
+    \item $void\; setMinimumAreaEnclosingRectangle(QPolygonF\; \&er_)\{er=er_;\}$
+    \begin{itemize}
+    \item vrátí Minimální ohraničující obdélník
+    \end{itemize}
+    \item $void\; clearAll();$
+    \begin{itemize}
+    \item vyčistí grafické okno
+    \end{itemize}
+    \item $QPolygonF\; transformPolygon(QPolygonF\; \&pol, \;double \&x_trans,\; double \&y_trans,\; \\double\; \&x_ratio,\; double\; \&y_ratio);$
+    \begin{itemize}
+    \item transformuje polygon MinMax boxu
+    \end{itemize}
+    \item $void\; drawPolygons(std::vector<QPolygonF>\; \&pols,\; double\; \&x_trans,\; double\; \&y_trans,\; \\double\; \&x_ratio,\; double\; \&y_ratio)$
+    \begin{itemize}
+    \item vykreslí polygony na Canvas
+    \end{itemize}
+    \item $vector<QPolygonF>\; getPolygons(){\return\; polygons;\}$
+    \begin{itemize}
+    \item vrátí polygon
+    \end{itemize}
+\end{itemize}
+
+   \section{Třída CSV}
+    \begin{itemize}
+    \item $vector\; <QPolygonF> read\_CSV(string\; \&filename)$
+    \begin{itemize}
+\item načte vstupní csv soubor
+\end{itemize}
+\end{itemize}
+
+   \section{Třída Mainform}
+    \begin{itemize}
+    \item $void \;on\_simplify\_clicked()$
+    \begin{itemize}
+\item provedení vybrané metody
+\end{itemize}
+    \item $void\; on\_load\_data\_clicked()$
+    \begin{itemize}
+\item otevře průzkumníka souborů
+\end{itemize}
+    \item $void \;on\_\_clear\_clicked()$
+    \begin{itemize}
+\item vyčistí Canvas
+\end{itemize}
+\end{itemize}
+
+\section{Třída SortPointsByX}
+    \begin{itemize}
+    \item $bool\; operator\; ()\; (QPointF\; \&p,\; QPointF \&q)$
+    \begin{itemize}
+    \item seřadí body podle velikosti souřadnice X
+    \end{itemize}
+    \end{itemize}
+
+\section{Třída SortPointsByY}
+    \begin{itemize}
+    \item $bool\; operator\; ()\; (QPointF\; \&p,\; QPointF \&q)$
+    \begin{itemize}
+    \item seřadí body podle velikosti souřadnice Y
+    \end{itemize}
+    \end{itemize}
+
+
+\chapter{Závěr} 
+Byla vytvořena aplikace Building Simplify s grafickým rozhráním. Aplikace byla napsána v programovacím jazyce C++ a umožňuje nahrání souboru CSV. Měla fungovat tak, že by bylo následně možné provést simplifikaci polygonů dle zvolené metody (Minimum Area Enclosing Rectangle, Wall Average, Longest Edge).
+Aplikaci je množné spustit, nahrát do ní soubor csv nebo je možné si polygon vlastnoručně naklikat, ale metody je možné spustit pouze pro individuálně naklikaný polygon.
+\\
+Aplikaci jednotlivých metod hodnotíme následovně$:$
+  
+\underline{Minimum Bounding Rectangle}\\
+- Natočení budovy je dáno delší hranou MBB. Metoda dává dobré výsledky, je výpočetně náročnější. Vstupní množina bodů se pro aplikaci metody musí znovu transformovat v každé iteraci. \par
+
+\underline{Wall Average}\\
+- Natočení budovy je dáno směrem nejdelší hrany. Výpočet není tolik náročný. Výsledky jsou adekvátní, ale nejdelší strana nemusí vypovídat o natočení celé budovy 
+
+ 
+ \underline{Longest Edge}\\
+- Každé směrnici je vypočten celočíselný zbytek po dělení hodnotou $\frac{\pi}{2}$. Metoda dává dobré výsledky, ale pro každou směrnici je nutno spočítat modus.
+
+\begingroup
+    \pageclear
+    \printbibliography[title=Literatura]
+\endgroup
+
+% \begingroup
+%     \let\clearpage\relax
+%     \printbibliography[title=References]
+% \endgroup
+
+\end{document}
