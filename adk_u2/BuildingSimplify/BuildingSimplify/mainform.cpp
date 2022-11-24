@@ -23,48 +23,45 @@ MainForm::~MainForm()
 }
 
 
-void MainForm::on_simplify_clicked()
+void MainForm::on_simplify_clicked(std::vector <QPointF> &points)
 {
     // Get building
-    QPolygonF building = ui->Canvas->getBuild();
     Algorithms a;
-    Draw d;
     QPolygonF err;
 
     if (ui->comboBox->currentText() == "Minimum Area Rectangle")
     {
-
-        // Minimum Area Enclosing Rectangle
-        err = a.resizeMinAreaEnclosingRectangle(building);
+        // Minimum area enclosing rectangle
+        QPolygonF ch = a.createCH(points);
+        err = a.minAreaEnclosingRectangle(points);
+        ui->Canvas->setCH(ch);
     }
 
     else if (ui->comboBox->currentText() == "Wall Average")
     {
         // Wall average
-        err = a.wallAverage(building);
+        err = a.wallAverage(points);
     }
 
     else if (ui->comboBox->currentText() == "Longest Edge")
     {
         // Longest Edge
-        err = a.longestEdge(building);
+        err = a.longestEdge(points);
     }
 
     // Set result and repaint
     ui->Canvas->setMinimumAreaEnclosingRectangle(err);
     repaint();
-
 }
 
 
 void MainForm::on_load_data_clicked()
 {
     CSV csvObject;
-    //MMB coordinates
-    double xmin =  1000000000;
-    double xmax = -1000000000;
-    double ymin =  1000000000;
-    double ymax = -1000000000;
+    double xmin =  1e10;
+    double xmax = -1e10;
+    double ymin =  1e10;
+    double ymax = -1e10;
 
     // Choose file
     QString file_path(QFileDialog::getOpenFileName(this, tr("Open CSV with polygons"), "../", tr("CSV Files (*.csv)")));
@@ -75,17 +72,17 @@ void MainForm::on_load_data_clicked()
     // Read the chosen file
     std::vector<QPolygonF> polygonVector = csvObject.read_CSV(filename, xmin, xmax, ymin, ymax);
 
-    // Get size of the Canvas
+    // Get canvas size
     int canvas_width = ui->Canvas->size().width();
     int canvas_height = ui->Canvas->size().height();
 
-    // Size scale for transformation to canvas
+    // Size ratio for transformation to canvas
     double data_width = xmax - xmin;
     double data_height = ymax - ymin;
     double x_ratio = data_width/canvas_width;
     double y_ratio = data_height/canvas_height;
 
-    // Find coords of top left corner in Canvas
+    // Coordinates of top left corner of the canvas
     int xtopL = ui->Canvas->geometry().x();
     int ytopL = ui->Canvas->geometry().y();
 
@@ -95,7 +92,6 @@ void MainForm::on_load_data_clicked()
 
     // Draw polygons
     ui->Canvas->drawPolygons(polygonVector, x_trans, y_trans, x_ratio, y_ratio);
-
 }
 
 

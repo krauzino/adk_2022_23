@@ -18,7 +18,7 @@ std::vector<QPolygonF> CSV::read_CSV(std::string &filename, double &x_min, doubl
 {
     // Reads CSV file and creates polygons from it
 
-    // Create a vector to store the all loaded polygons
+    // Create a vector to store the result
     std::vector<QPolygonF> result;
 
     // Variables, input filestream
@@ -28,7 +28,7 @@ std::vector<QPolygonF> CSV::read_CSV(std::string &filename, double &x_min, doubl
     // Check if file is opened
     if(!file.is_open()) throw std::runtime_error("File not opened.");
 
-    // Read column
+    // Read column names
     if(file.good())
     {
         // Get first line from file and create stringstream
@@ -48,7 +48,7 @@ std::vector<QPolygonF> CSV::read_CSV(std::string &filename, double &x_min, doubl
         line.erase(remove(line.begin(), line.end(), '('), line.end());
         line.erase(remove(line.begin(), line.end(), ')'), line.end());
 
-        //In WKT format we need to remove first 12 symbols (Because every line starts with Multipolygon)
+        //Remove first 12 symbols of string (which is "MULTIPOLYGON")
         line.erase(0,12);
 
         // Stringstream of the current line
@@ -80,10 +80,10 @@ std::vector<QPolygonF> CSV::read_CSV(std::string &filename, double &x_min, doubl
                     //If there is x coor to read
                     if (coords == 0)
                     {
-                        //Convert string to integer
+                        //Convert string value to integer value
                         x = (std::stod(coordinate));
 
-                        //Update MMB coordinates
+                        //Update minmax box coors
                         if (x < x_min)
                             x_min = x;
 
@@ -95,10 +95,10 @@ std::vector<QPolygonF> CSV::read_CSV(std::string &filename, double &x_min, doubl
                     //If there is y coor to read
                     else if (coords == 1)
                     {
-                        //Convert string to integer
+                        //Convert string value to integer value
                         y = (std::stod(coordinate));
 
-                        //Update MMB coordinates
+                        //Update minmax box coors
                         if (y < y_min)
                             y_min = y;
 

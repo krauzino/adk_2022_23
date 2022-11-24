@@ -69,10 +69,26 @@ breaklines=T}
 
 
 \chapter{Popis a rozbor problému} 
-Na vstupu je množina polygonů (budov) $B = \{B_i\}_{i=1}^n$, kde budova $B_i  = \{p[x,y]_{i,j}\}_{j=i}^m$.\par
-Generalizace budovy, tj. zjednodušení tvaru polygonu za účelem redukce množství dat, je provedena pomocí konvexní obálky, jako první odhad tvaru prostorového jevu. Konvexní obálka je definována jako nejmenší konvexní mnohoúhelník P obsahující S (tj. neexistuje $P' \subset P$ splňující definici) množiny H konečné množiny S v $\emph{E}^2$. Množina S je označena jako konvexní, pokud spojnice libovolných dvou prvků leží zcela uvnitř této množiny. Jedná se tedy o ohraničující mnohoúhelník P s nejmenší plochou.\par
-Generalizace je provedena pro každou budovu.\par
+Na vstupu je množina polygonů (budov) $B = \{B_i\}_{i=1}^n$, kde budova $B_i  = \{p[x,y]_{i,j}\}_{j=i}^m$. Pro každou z budov je hledána její generalizace do úrovně LoD0. Generalizace budovy je zjednodušení tvaru polygonu za účelem redukce množství dat a je provedena pomocí konvexní obálky jako odhad tvaru prostorového jevu.\par
+Konvexní obálkou konečné množiny ${B_i}$ se rozumí konvexní mnohoúhelník P s nejmenší plochou. Množina P je konvexní pokud spojnice libovolných dvou bodů množiny leží zcela uvnitř množiny P.\par
 
+Pro generalizaci je možno využít metody jako Minimum Area Enclosing Rectangle, Longest Edge nebo Wall Average. Metody jsou dále popsány v další kapitole.\par
+
+Před generalizací může mít budova nepravidelný tvar, po zjednodušení zůstane čtyřúhelník, který symbolicky nahradí původní polygon budovy.
+%\cite{gpcd}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=5cm]{fig/b_simplify.png}
+    \caption{Generalizace nespojených polygonů \cite{gpcd}}
+    \label{fig:Generalizace polygonu}
+\end{figure}
+%vlozit obrázek budovy pred a po generalizaci
+
+
+%Konvexní obálka je definována jako nejmenší konvexní mnohoúhelník P obsahující S (tj. neexistuje $P' \subset P$ splňující definici) množiny H konečné množiny S v $\emph{E}^2$. Množina S je označena jako konvexní, pokud spojnice libovolných dvou prvků leží zcela uvnitř této množiny. Jedná se tedy o ohraničující mnohoúhelník P s nejmenší plochou.\par
+%Generalizace je provedena pro každou budovu.\par
+\bigskip
 
 
 \chapter{Popis použitých algoritmů}
@@ -191,24 +207,23 @@ Wall Average - implementace $:$
 \bigskip
 
 \chapter{Problematické situace a jejich rozbor} 
-Při tvorbě aplikace se nepodařilo spustit metody pro načtený soubor dat. Aplikace funguje pouze pro manuálně naklikaný polygon.\par
-
-
+%Při tvorbě aplikace se nepodařilo spustit metody pro načtený soubor dat. Aplikace funguje pouze pro manuálně naklikaný polygon.\par
 
 \chapter{Vzhled aplikace}
 Spuštěním aplikace se otevře okno "Building Simplify". Okno je rozděleno na dvě části. Na levé straně se nachází Canvas, část vyhrazená pro vykreslování geometrie. Vpravo je menu, které obsahuje tlačítka tříd QPushButton a rolovací menu QComboBox.\par
 Tlačítka QPushButton slouží k nahrání dat, generalizaci, pročištění grafického okna (Canvas). Rolovací menu slouží k výběru metody generalizace.
 
-
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=\linewidth]{fig/SB_open.png}
+    \includegraphics[width=16cm]{fig/SB_open.png}
     \caption{Vzhled aplikace}
     \label{fig:Zadání úlohy}
 \end{figure}
 
+\bigskip
 
 \chapter{Vstupní data a výstupní} 
+Vstupní data byla získána exportováním z programu ArcGIS Pro.
 Pomocí tlačítka Load file lze do aplikace nahrát soubor polygonů ve formátu CSV. Ukázková data jsou polygony budov v oblasti Praha 6, Dejvice. Souřadnice jsou v S-JTSK. \par
 
 \begin{figure}[ht!]
@@ -250,6 +265,18 @@ Výstupem aplikace je grafické znázornění nahraných objektů (polygonů) a 
 Výsledky jsou ukázány pro jeden polygon.\par
 \\ 
 \pagebreak
+
+
+%\clearpage
+%\chapter{Testování dat}
+%Data byla testována pomocí výše uvedeného datasetu z oblasti Praha - Dejvice. Po průchodu aplikací bylo dospěno %k následujícímu:
+%vlozit tabulku(???) se statistikou co a jak odpovída
+
+
+
+
+
+%\pagebreak
 
 \clearpage
 \chapter{Dokumentace} 
@@ -331,12 +358,12 @@ Výsledky jsou ukázány pro jeden polygon.\par
     \item vykreslí konvexní obálku Convex Hull
     \end{itemize}
     
-    \item $QPolygonF\; getMAER()\{return\; er;\}$
+    \item $QPolygonF\; getMAER()\{return\; er;\}$https://www.overleaf.com/project/6358f5384e144f3b76681565
     \begin{itemize}
     \item vykreslí Minimum Area Enclosing Rectangle
     \end{itemize}
     
-    \item $QPolygonF\; getBuild(){return\; building;}$
+    \item $QPolygonF\; getBuild()\{return\; building;\}$
     \begin{itemize}
     \item vykreslí polygony na Canvas
     \end{itemize}
@@ -361,10 +388,10 @@ Výsledky jsou ukázány pro jeden polygon.\par
     \begin{itemize}
     \item vykreslí polygony na Canvas
     \end{itemize}
-    \item $vector<QPolygonF>\; getPolygons(){\return\; polygons;\}$
-    \begin{itemize}
-    \item vrátí polygon
-    \end{itemize}
+  %  \item $vector<QPolygonF>\; getPolygons(){\return\; polygons;\}$
+  %  \begin{itemize}
+  %  \item vrátí polygon
+  %  \end{itemize}
 \end{itemize}
 
    \section{Třída CSV}

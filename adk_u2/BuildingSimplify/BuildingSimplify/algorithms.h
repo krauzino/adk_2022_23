@@ -10,16 +10,15 @@ public:
     Algorithms();
     int getPointLinePosition(QPointF &p1, QPointF &p2, QPointF &q);
     double getTwoLinesAngle(QPointF &p1,QPointF &p2,QPointF &p3,QPointF &p4);
-    QPolygonF createCH(QPolygonF &pol);
-    QPolygonF rotate(QPolygonF &pol, double sig);
-    double getArea(QPolygonF &pol);
-    std::tuple<QPolygonF, double> minMaxBox(QPolygonF &pol);
-    QPolygonF minAreaEnclosingRectangle(QPolygonF &pol);
-    QPolygonF resizeRectangle(QPolygonF &rec, double areaB);
-    QPolygonF resizeMinAreaEnclosingRectangle(QPolygonF &pol);
-    QPolygonF wallAverage(QPolygonF &pol);
-    QPolygonF longestEdge(QPolygonF &pol);
-
+    std::vector <QPointF> resizeMinAreaEnclosingRectangle(std::vector <QPointF> &points, std::vector <QPointF> &rec);
+    QPolygonF minAreaEnclosingRectangle(std::vector <QPointF> &points);
+    QPolygonF createCH(std::vector <QPointF> &points);
+    std::vector <QPointF> rotate(std::vector <QPointF> &points, double sig);
+    double getArea(std::vector <QPointF> &points);
+    std::tuple<std::vector<QPointF>, double> minMaxBox(std::vector <QPointF> &points);
+    std::vector <QPointF> resizeRectangle(std::vector <QPointF> &points, std::vector <QPointF> &rec);
+    QPolygonF wallAverage(std::vector <QPointF> &points);
+    QPolygonF longestEdge(std::vector <QPointF> &points);
 };
 
 #endif // ALGORITHMS_H

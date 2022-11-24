@@ -20,7 +20,7 @@ private slots:
 
     void on_clear_clicked();
 
-    void on_simplify_clicked();
+    void on_simplify_clicked(std::vector <QPointF> &points);
 
     void on_load_data_clicked();
 

@@ -2,7 +2,6 @@
 #include "mainform.h"
 
 #include <QtGui>
-#include <QPolygon> // NUTNE?
 #include <QFileDialog>
 #include <iostream>
 
@@ -48,7 +47,7 @@ void Draw::paintEvent(QPaintEvent *event)
     painter.drawPolygon(er);
 
     // Draw polygons loaded from file - for each cycle
-    for (QPolygonF polygon : Draw::polygons)
+    for (QPolygonF polygon : Draw::buildings)
     {
         painter.setBrush(Qt::yellow);
         painter.drawPolygon(polygon);
@@ -66,7 +65,7 @@ void Draw::clearAll()
     er.clear();
     ch.clear();
     points.clear();
-    polygons.clear();
+    buildings.clear();
     chs.clear();
     ers.clear();
 
@@ -75,7 +74,7 @@ void Draw::clearAll()
 
 QPolygonF Draw::transformPolygon(QPolygonF &pol, double &x_trans, double &y_trans, double &x_ratio, double &y_ratio)
 {
-    // Transform polygon's x,y by basic transformation based on minmax box of dataset
+    // Transform x,y of polygon by basic transformation based on minmax box of dataset
     // x_min, x_max, y_min, y_max - minmax box
     QPolygonF polygonTransformed;
 
@@ -86,7 +85,7 @@ QPolygonF Draw::transformPolygon(QPolygonF &pol, double &x_trans, double &y_tran
         double dx = p.x()-x_trans;
         double dy = p.y()-y_trans;
 
-        //Scale m
+        // Scale m
         double x0 = dx/x_ratio;
         double y0 = dy/y_ratio;
 
@@ -104,11 +103,11 @@ void Draw::drawPolygons(std::vector<QPolygonF> &pols, double &x_trans, double &y
     // Draw vector of polygons by pushing back to a polygons vector
     QPolygonF transformedPolygon;
 
-    Draw::polygons.clear();
+    Draw::buildings.clear();
     for (QPolygonF pol : pols)
     {
         transformedPolygon = transformPolygon(pol, x_trans, y_trans, x_ratio, y_ratio);
-        Draw::polygons.push_back(transformedPolygon);
+        Draw::buildings.push_back(transformedPolygon);
     }
 
     repaint();
