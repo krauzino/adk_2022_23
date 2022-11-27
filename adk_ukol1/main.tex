@@ -1,0 +1,309 @@
+\documentclass[oneside,12pt,a4paper]{book}
+\usepackage[utf8]{inputenc}
+\labelformat{section}{\thechapter.#1}
+\usepackage{listings}
+\usepackage{FEE}
+\pagestyle{CTU_FEE_pagestyle}
+
+%\usepackage{showframe}
+\input{acronyms}
+
+
+\coursename{Algoritmy digitální kartografie a GIS}
+
+
+\subject{Úloha č. 1:}
+\title{Geometrické vyhledávání bodu}
+
+\author{Bc. Taťána Bláhová, Bc. Tomáš Krauz, Bc. Adéla Kučerová}
+
+
+\date{\today} % keep commented to add current date, empty for no date, input version of file (preferred)
+\lstset{ 
+showstringspaces=false, 
+numbers=left, 
+numberstyle=\ttfamily\small, 
+stepnumber=1, 
+firstnumber=last, 
+breaklines=T} 
+
+
+
+
+\begin{document}
+% \let\cleardoublepage\clearpage
+\maketitle
+
+    \vspace{-2cm}
+    \vfill
+    \begingroup
+    
+    \tableofcontents
+    % \printacronyms
+    \vspace{-0.5cm}
+    \printglossary[type=\acronymtype,title=\Large Acronyms]
+    \endgroup
+    \vspace{-1cm}
+% \chapter{Example}
+% \input{example.tex}
+
+
+\clearpage
+\chapter{Zadání}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/zadani.PNG}
+    \caption{Zadání úlohy}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+
+
+\chapter{Bonusové úlohy} 
+\begin{enumerate}
+    \item \emph{Analýza polohy bodu (uvnitř/vně) metodou Winding Number Algorithm.  +5b}
+    \item \emph{Zvýraznění polygonů.    +3b}
+\end{enumerate}
+
+
+\chapter{Popis a rozbor problému} 
+Point location problem je jedno ze základních témat výpočetní geometrie. Lokalizace bodu je důležitá v oblastech geografických informačních systémů (GIS), v počítačové grafice i počítačem podporovaném kreslení (CAD).\par 
+Máme bod \emph{q} = [$x_q$,$y_q$]  a množinu \emph{M} ve které se nalézá \emph{m} mnohoúhelníků \emph\{$P_i$\} . Každý mnohoúhelník se skládá z několika vrcholů \{$p_i$\}.
+ Zde se zabýváme tím, zda námi určený bod \emph{q} leží uvnitř, vně nebo na hranici konvexních i nekonvexních mnohoúhelníku  \emph{\{$P_i$\}}. Pro řešení nekonvexních mnohoúhelníků jsou používaný 2 algoritmy. Popis těchto algoritmů bude vysvětlen v následující kapitole.
+%Máme bod \emph{q}=[$x_q$,$y_q$]  a množinu \emph{M\{$P_j$\}} danou \emph{n} body \{{$p_i$\}, %které společně tvoří vrcholy \emph{m} mnohoúhelníků. Zde se zaobýváme, zda námi určený bod leží %uvnitř, vně nebo na hranici konvexních i nekonvexních mnohoúhelníku.
+
+\chapter{Popis použitých algoritmů}
+\label{kapitola: Popis použitých algoritmů}
+
+\section{Ray Crossing Algorithm}
+Máme mnohoúhelník \emph\{$P_i$\} a námi zkoumaný bod \emph{q}. Do bodu \emph{q} je umístěn počátek lokální souřadnicové soustavy (\emph{q}, x',y'), který má osy rovnoběžné s hlavní souřadnicovou soustavou. Následně je určen počet průsečíků osy x' s mnohoúhelníkem \emph\{$P_i$\}. Ze všech průsečíků jsou vybrány takové, které mají  x $>$ 0. Jestliže je počet průsečíků lichý, pak je \emph{q} uvnitř polygonu, pokud je sudý, tak vně polygonu. Průsečík $x'_m$ osy $x'$ se stranou mnohoúhelníka se určí podle vzorce na stránkách \cite{plp} .\par
+Pro detekci jsou použity dva paprsky a je určováno, jestli bod leží na úsečce.\par
+
+
+\begin{equation}
+    \mathrm{x'_m} = \frac{x'_iy'_{i-1}-x'_{i-1}y'_i}{y'_i-y'_{i-1}}
+\tag{1}
+\label{hh}
+\end{equation}
+
+\bigskip
+
+
+Algoritmus$:$
+\begin{enumerate}
+\item Inicializuj k = 0; kde k je počet průsečíků $\epsilon$
+\item       Pro $\forall$ $p_i$ opakuj
+\item \quad \quad $x'_i = x_i -x_q;   y'_i = y_i -y_q$
+\item \quad \quad Jestliže (y'_i>0) \; \&\&\;  (y'_{i-1} $\leq$ 0) $||$ (y'_{i-1}>0) \; \&\&\;  (y'_{i} $\leq$ 0) ... vhodný segment
+\item \quad \quad Vypočítej $x'_m$ ... vhodny průsečík
+\item \quad \quad if $x'_m > 0, pak \;  k++$
+\item if k je liché, pak $q \in P_i$
+\item else $q \notin P_i$
+\end{enumerate}
+\section{Winding Number Algorithm}
+Máme mnohoúhelník \emph\{$P_i$\} a námi zkoumaný bod \emph{q}. Je potřeba vypočítat sumu všech orientací nad  všemi vrcholy mnohoúhelníku. Je potřeba spočítat sumu $\Omega$ všech rotací $\omega_i$,
+
+\begin{equation}
+    \mathrm{\Omega(q, P_i)} = \sum_{i=1}^{n} {\omega_j(p_i,q,p_{i+1})}
+\tag{2}
+\label{rotace}
+\end{equation}
+které musí průvodič opsat nad všemi body $p_i\in P$ , $n$ je počet vrcholů mnohoúhelníku.
+Úhel $\omega_i$ se vypočítá podle vzorce
+
+\begin{equation}
+    \mathrm{\cos(\omega_i)} = \frac{{\vec{u_i}*\vec{v_i}}}{{\left| \vec{u_i} \right |}*{\left| \vec{v_i} \right |}}
+\tag{3}
+\label{omega}
+\end{equation}
+
+kde $\vec{u_i} = (q,p_i)$,  $\vec{u_i} = (q,p_{i+1})$.
+
+$\Omega$ může nabývat hodnot:
+\begin{itemize}
+\item $2\pi$ $>$ $q\in P$
+\item 0$^{\circ}$ $>$ $q\notin P$   %tohle jsem upravil už včera -- ja predtim jen zkopiroval a uz nezkontroloval tak to tam bylo 2x %okk, takze co s tim ted? :D - :D :D vím já ? netusim tady mu vadilo ze bylo 2x -> 2pi nalezi P -jsem to bral z te TZ - jako fakt nevím co stím dále % ja taky ne, si ted tak prochazim ten jeho mail ale realne moc nevim co tam psat dal, kouknu na to jeste hlavne vecer - Tam spis byla moje chyba z nepozornosti a on si toho všiml 
+
+\item Jiný úhel, bod je totožný s hranou a nebo s vrcholem mnohoúhelníku
+\end{itemize}
+%Na jaké straně leží bod a nebo hraně je možno poznat podle hodnoty diskriminantu.
+%--- JE TAKHLE ZÁPIS V POŘÁDKU?--- ??? Jak to myslíš ? no jestli je takhle ten vzorec už správně, spíš myslím, že není, %nevím, jak správně zapsat determinant, aby se mu to líbilo --co jsem napsala nedává vlastně moc smysl
+%--Já to opsal z TZ od kluků co máme --to jsem si trochu myslela, ještě pak večer pohledám ne netu, zatím si sem budu psát %takhle poznámky co předělat, ok?
+% jasný :) 
+
+\begin{equation}
+    \mathrm{t} = det
+    \begin{vmatrix}
+u_x & u_y\\
+v_x & v_y
+\end{vmatrix}
+\tag{4}
+\label{omega}
+\end{equation}
+
+Poté mohou nastat tři scénáře:
+\begin{itemize}
+\item det $>$ 0, q se nachází na pravé straně
+\item det $<$ 0, q se nachází na levé straně
+\item det = 0, q se nachází na hraně
+\end{itemize}
+\bigskip
+\bigskip
+
+
+Algoritmus$:$
+
+\begin{enumerate}
+\item Inicializuj $\Omega$ = 0, tolerance $\epsilon$
+\item       Opakuj pro trojice $\forall$ $< p_i,q,p_{i+1}>$
+\item \quad \quad Urči polohu $q$ vzhledem k $p = (p_i,p_{i+1}$)
+\item \quad \quad Urči úhel $\omega_i= \angle p_i,q,p_{i+1}$
+\item \quad \quad if $q$ je vlevo od $(p_i,p_{i+1})$, pak  $\Omega$ = $\Omega$ - $\omega$
+\item \quad \quad else $q$ je v pravo od $(p_i,p_{i+1})$, pak  $\Omega$ = $\Omega$ + $\omega$
+\item if  $| $\Omega$ - $2\pi$ $|  < $\epsilon$, pak $q\in P$
+\item else q $q\notin P$
+\end{enumerate}
+
+\bigskip
+Postačuje zde výpočet $\Sigma \omega$, $2\pi$ je konstanta. Je zde lepší ošetření singulárních případů, než je u případu paprskového algoritmu, ale je pomalejší jak paprsk.algoritmus.\par
+Nevýhodou je problém, kdy $q = p_i$ a nutnost předzpracování O(N).
+
+
+\chapter{Problematické situace a jejich rozbor} 
+
+\section{Bod totožný s vrcholem mnohoúhelníku}
+Tento problém se řeší stejným způsobem pro oba algoritmy.\par
+Pro každý vrchol je spočtena vzdálenost \emph{s} od určovaného bodu. Za předpokladu, že
+všechny délky \\ \emph{s} $<$ $\epsilon$ ,  lze algoritmus zastavit a říct, že bod je totožný s vrcholem mnohoúhelníku.
+
+\section{Bod se nalézá na hranici mnohoúhelníku}
+\subsection{Ray Crossing Algorithm}
+
+Když je mnohoúhelník tranformován do místní souř. soustavy, se vypočítají průsečíky $x'_m, y'_m $ s hrany polygonu s osami. Je potřeba, aby byla splněna podmínka \; $|x'_m| < \epsilon \&\& \; |y'_m| < \epsilon$ .
+Což znamená, že bod je na hraně poylgonu a algoritmus může být zastaven.
+
+\subsection{Winding Number Algorithm}
+
+Při výpočtu $\omega_i$ se určuje determinant $det$. Pokud $|det| < \epsilon$ , kde epsilon je stanovena tolerance přesnosti výpočtu. Můžeme prohlásit, že bod leží na přímce dané stranou polygonu. Pokud předpokládáme, že bod leží v minimálním ohraničujícím obdelníku strany mnohoúhelníku, který ma strany rovnoběžné s osami souř. soustavy, pak lze potvrdit, že bod leží na hraně polygonu.
+
+
+\chapter{Vzhled aplikace}
+Na úvodní obrazovce aplikace se nachází v levé části náhledové okno Canvas třídy Draw.
+Na pravé straně je pak panel s obslužnými tlačítky. Prvním je comboBox třídy QComboBox, který
+slouží k výběru algoritmu. Dále jsou další tlačítka třídy QPushButton. Tato tlačítka slouží k analýze, k vyčistění plochy a nebo pro načtení CSV souboru.
+CSV soubor je ve formátu
+----PŘIDAT SCREENSHOT NAŠEHO CSV SOUBORU a popsat co je na každém řádku - tzn jaký vstup je očekáván---
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/vzheld_aplikace.png}
+    \caption{Vzhled aplikace}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+
+\chapter{Vstupní data} 
+Na úvodní obrazovce se nachází tlačítko Load file, po jehož kliknutí se otevře průzkumník souborů,
+pomocí něhož najdeme požadovaný soubor. Soubor s polygony musí být ve formátu csv.
+
+\chapter{Výstupní data} 
+Výstupem aplikace je grafické znázornění dotčeného/dotčených polygonů. Polygon je zvýrazněn
+souvislou výplní zelené barvy.
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=\linewidth]{fig/vystupni_Data.PNG}
+    \caption{Výstupní data}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+
+
+
+\chapter{Dokumentace} 
+\section{Třída Algorithms}
+    \begin{itemize}
+    \item $int \;getPointLinePosition(QPointF \; \&p1, QPointF \;\&p2, QPointF \;\&q)$
+    \begin{itemize}
+    \item analyzuje vzájemný vztah bodu a přímky
+    \end{itemize}
+    \item $double\; getTwoLinesAngle(QPointF \; \&p1,QPointF \; \&p2,QPointF \; \&p3,QPointF \; \&p4)$
+        \begin{itemize}
+    \item vypočítá úhel mezi dvěma vektory
+    \end{itemize}
+    \item $int\; getPointAndPolygonPosition(QPointF \; \&q, vector<QPointF> \; \&pol)$
+        \begin{itemize}
+    \item analyzuje vztah bodu a polygonu pomocí Ray Crossing Algorithm
+    \end{itemize}
+    \item $int\; getPosWinding(QPointF \; \&q, vector<QPointF> \; \&pol) $
+        \begin{itemize}
+    \item analyzuje vztah bodu a polygonu pomocí Winding Number Algorithm
+    \end{itemize}
+    \item $vector<QPoint> \; getLocalCoordinates(QPointF \; \&q, vector<QPointF> \; \&pol)$
+        \begin{itemize}
+    \item transformuje souřadnice do místního souřadnicového systému
+    \end{itemize}
+    \item $int\; processPols(QPointF \; \&q, vector<QPolygon> \; \&pols, QString \; \&alg, vector<int> \; \&res)$
+        \begin{itemize}
+    \item analyzuje vztah všech polygonů s bodem  q
+    \end{itemize}
+    
+\end{itemize}
+   \section{Třída Draw} 
+    \begin{itemize}
+    \item $void\; mousePressEvent(QMouseEvent *event)$
+    \begin{itemize}
+    \item vrátí souřadnice kurzoru po kliknutí na Canvas
+    \end{itemize}
+    \item $void\; paintEvent(QPaintEvent *event)$
+    \begin{itemize}
+    \item vykreslí polygony na Canvas
+    \end{itemize}
+        \item $void\; clearScreen()$
+    \begin{itemize}
+    \item vyčistí Canvas
+    \end{itemize}
+\end{itemize}
+
+   \section{Třída CSV}
+    \begin{itemize}
+    \item $vector\; <QPolygon> read\_Csv(string &filename)$
+    \begin{itemize}
+\item načte vstupní csv soubor
+\end{itemize}
+\end{itemize}
+
+   \section{Třída Mainform}
+    \begin{itemize}
+    \item $void \;on\_pushButton\_Position\_clicked()$
+    \begin{itemize}
+\item provede analýzu
+\end{itemize}
+    \item $void\; on\_pushButton\_File\_clicked()$
+    \begin{itemize}
+\item otevře průzkumníka souborů a je možno načíst požadovaný soubor
+\end{itemize}
+    \item $void \;on\_pushButton\_Clear\_clicked()$
+    \begin{itemize}
+\item vyčistí Canvas
+\end{itemize}
+\end{itemize}
+\chapter{Závěr} 
+Byla vytvořena aplikace Point in Polygon (nvm jestli jsme si ji my pojmenovali ) s grafickým rozhráním. Aplikace byla napsána v programovacím jazyce C++. Aplikac umožňuje nahrání souboru .csv s polygony. K analýze polohy bodu bylo využito dvou metod Ray Crossing Algorithm a Winding Number Algorithm. Analýza je provedena pokud 
+\begin{itemize}
+\item[a)] leží uvnitř polygonu
+\item[b)] leží vně polygonu
+
+\end{itemize}
+\begingroup
+    \pageclear
+    \printbibliography[title=Literatura]
+\endgroup
+
+% \begingroup
+%     \let\clearpage\relax
+%     \printbibliography[title=References]
+% \endgroup
+
+\end{document}
