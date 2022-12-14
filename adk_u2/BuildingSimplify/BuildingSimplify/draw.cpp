@@ -19,7 +19,7 @@ void Draw::mousePressEvent(QMouseEvent *event)
     // Create new point
     QPointF p(x, y);
 
-    // Add as a new vertex
+    // Add as new vertex
     building.push_back(p);
 
     // Repaint screen
@@ -30,28 +30,34 @@ void Draw::mousePressEvent(QMouseEvent *event)
 void Draw::paintEvent(QPaintEvent *event)
 {
     // Draw polygon
-    QPainter painter(this);
-
     // Start draw
+    QPainter painter(this);
     painter.begin(this);
 
     // Draw polygon
     painter.drawPolygon(building);
 
-    // Draw convex hull
-    painter.setPen(Qt::red);
-    painter.drawPolygon(ch);
-
-    // Draw minimum area enclosing rectangle
-    painter.setPen(Qt::green);
-    painter.drawPolygon(er);
-
-    // Draw polygons loaded from file - for each cycle
+    // Draw polygons loaded from file
     for (QPolygonF polygon : Draw::buildings)
     {
-        painter.setBrush(Qt::yellow);
+        painter.setPen(Qt::black);
+        painter.setBrush(Qt::white);
         painter.drawPolygon(polygon);
     }
+
+    // Draw convex hull
+    painter.setPen(Qt::red);
+    painter.setBrush(Qt::NoBrush);
+    if (chs.size() > 0)
+        for (QPolygonF CHs : chs)
+            painter.drawPolygon(CHs)   ;
+
+    // Draw enclosing rectangle
+    painter.setPen(Qt::green);
+    painter.setBrush(Qt::NoBrush);
+    if (ers.size() > 0)
+        for (QPolygonF ERs : ers)
+            painter.drawPolygon(ERs);
 
     // End draw
     painter.end();
@@ -60,56 +66,52 @@ void Draw::paintEvent(QPaintEvent *event)
 
 void Draw::clearAll()
 {
-    // Clear all structures
+    // Clear all
     building.clear();
-    er.clear();
-    ch.clear();
     points.clear();
     buildings.clear();
     chs.clear();
     ers.clear();
-
 }
 
 
-QPolygonF Draw::transformPolygon(QPolygonF &pol, double &x_trans, double &y_trans, double &x_ratio, double &y_ratio)
+void Draw::drawPolygons(std::vector<QPolygonF> &polygons, double &xtrans, double &ytrans, double &xratio, double &yratio)
 {
-    // Transform x,y of polygon by basic transformation based on minmax box of dataset
-    // x_min, x_max, y_min, y_max - minmax box
-    QPolygonF polygonTransformed;
-
-    // For each point in polygon cycle
-    for (QPointF p : pol)
-    {
-        // Translation with offset
-        double dx = p.x()-x_trans;
-        double dy = p.y()-y_trans;
-
-        // Scale m
-        double x0 = dx/x_ratio;
-        double y0 = dy/y_ratio;
-
-        QPointF point(x0, y0);
-        polygonTransformed << point;
-    }
-
-    // Compute transformation key
-    return polygonTransformed;
-}
-
-
-void Draw::drawPolygons(std::vector<QPolygonF> &pols, double &x_trans, double &y_trans, double &x_ratio, double &y_ratio)
-{
-    // Draw vector of polygons by pushing back to a polygons vector
-    QPolygonF transformedPolygon;
+    // Draw vector of polygons
+    QPolygonF transPolygon;
 
     Draw::buildings.clear();
-    for (QPolygonF pol : pols)
+    for (QPolygonF pol : polygons)
     {
-        transformedPolygon = transformPolygon(pol, x_trans, y_trans, x_ratio, y_ratio);
-        Draw::buildings.push_back(transformedPolygon);
+        transPolygon = transformPolygon(pol, xtrans, ytrans, xratio, yratio);
+        Draw::buildings.push_back(transPolygon);
     }
 
     repaint();
+}
+
+
+QPolygonF Draw::transformPolygon(QPolygonF &polygon, double &xtrans, double &ytrans, double &xratio, double &yratio)
+{
+    // Transform x,y of polygon
+    QPolygonF transPolygon;
+
+    // Go through all points in polygon
+    for (QPointF p : polygon)
+    {
+        // Translation
+        double dx = p.x() - xtrans;
+        double dy = p.y() - ytrans;
+
+        // Scale m
+        double x0 = dx/xratio;
+        double y0 = dy/yratio;
+
+        QPointF point(x0, y0);
+        transPolygon << point;
+    }
+
+    // Compute transformation key
+    return transPolygon;
 }
 

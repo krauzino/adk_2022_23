@@ -1,5 +1,3 @@
-#include "csv.h"
-
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -8,20 +6,20 @@
 #include <stdexcept>
 #include <utility>
 #include <QDir>
+#include "csv.h"
 
 CSV::CSV()
 {
 
 }
 
-std::vector<QPolygonF> CSV::read_CSV(std::string &filename, double &x_min, double &x_max, double &y_min, double &y_max)
+std::vector<QPolygonF> CSV::readCSV(std::string &filename, double &xmin, double &xmax, double &ymin, double &ymax)
 {
-    // Reads CSV file and creates polygons from it
-
-    // Create a vector to store the result
+    // Read CSV file and create polygons from it
+    // Vector for storing result
     std::vector<QPolygonF> result;
 
-    // Variables, input filestream
+    // Supplementary variables
     std::string line, column;
     std::ifstream file(filename);
 
@@ -48,7 +46,7 @@ std::vector<QPolygonF> CSV::read_CSV(std::string &filename, double &x_min, doubl
         line.erase(remove(line.begin(), line.end(), '('), line.end());
         line.erase(remove(line.begin(), line.end(), ')'), line.end());
 
-        //Remove first 12 symbols of string (which is "MULTIPOLYGON")
+        // Remove text symbols of string ("MultiPolygon")
         line.erase(0,12);
 
         // Stringstream of the current line
@@ -57,65 +55,65 @@ std::vector<QPolygonF> CSV::read_CSV(std::string &filename, double &x_min, doubl
         // Current column ID
         int columnID = 0;
 
-        // Variables
-        int coords = 0;
+        // Supplementary variables
+        int coordinates = 0;
         int x, y;
         std::string coordinate_pair, coordinate;
         QPolygonF polygon;
 
-        //Go through every point in polygon
+        // Go through all points in polygon
         while(std::getline(stringstream, coordinate_pair, ','))
         {
             std::stringstream ss2(coordinate_pair);
 
-            //Go through every coordinate in point
+            // Go through all coordinates in point
             while(std::getline(ss2, coordinate, ' '))
             {
                 if (coordinate == "")
                     continue;
 
-                //If coordinate pair incomplete (must include both x and y)
-                if (coords < 2)
+                // Coordinate must be x and y
+                if (coordinates < 2)
                 {
-                    //If there is x coor to read
-                    if (coords == 0)
+                    // Coordinate x
+                    if (coordinates == 0)
                     {
-                        //Convert string value to integer value
+                        // Convert string to integer
                         x = (std::stod(coordinate));
 
-                        //Update minmax box coors
-                        if (x < x_min)
-                            x_min = x;
+                        // Update min-max box coordinates
+                        if (x < xmin)
+                            xmin = x;
 
-                        if (x > x_max)
-                            x_max = x;
+                        if (x > xmax)
+                            xmax = x;
 
-                        coords++;
+                        coordinates++;
                     }
-                    //If there is y coor to read
-                    else if (coords == 1)
+                    // Coordinate y
+                    else if (coordinates == 1)
                     {
-                        //Convert string value to integer value
+                        // Convert string to integer
                         y = (std::stod(coordinate));
 
-                        //Update minmax box coors
-                        if (y < y_min)
-                            y_min = y;
+                        // Update min-max box coordinates
+                        if (y < ymin)
+                            ymin = y;
 
-                        if (y > y_max)
-                            y_max = y;
+                        if (y > ymax)
+                            ymax = y;
 
-                        coords++;
+                        coordinates++;
                     }
                 }
             }
 
             // Store coordinates to point
-            if (coords == 2)
+            if (coordinates == 2)
             {
                 QPointF p(x,y);
                 polygon << p;
-                coords = 0;
+                coordinates = 0;
             }
             // Column index
             columnID++;

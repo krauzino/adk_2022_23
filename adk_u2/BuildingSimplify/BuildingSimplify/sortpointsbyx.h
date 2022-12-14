@@ -9,7 +9,7 @@ public:
     SortPointsByX();
     bool operator () (QPointF &p, QPointF &q)
     {
-        return p.x() < q.x() || (p.x() == q.x()) && (p.y() < q.y());
+        return p.x() < q.x();
     }
 };
 

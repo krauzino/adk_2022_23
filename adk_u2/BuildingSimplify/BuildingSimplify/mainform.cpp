@@ -22,10 +22,9 @@ MainForm::~MainForm()
     delete ui;
 }
 
-
-void MainForm::on_simplify_clicked(std::vector <QPointF> &points)
+void MainForm::simplifyBuildings(std::vector <QPointF> &points)
 {
-    // Get building
+    // Create enclosing rectangle
     Algorithms a;
     QPolygonF err;
 
@@ -50,27 +49,58 @@ void MainForm::on_simplify_clicked(std::vector <QPointF> &points)
     }
 
     // Set result and repaint
-    ui->Canvas->setMinimumAreaEnclosingRectangle(err);
+    ui->Canvas->setMAER(err);
     repaint();
+}
+
+
+void MainForm::on_simplify_clicked()
+{
+    // Get points and polygons
+    std::vector<QPointF> points = ui->Canvas->getPoints();
+    std::vector<QPolygonF> polygons = ui->Canvas->getPolygons();
+
+    // Create enclosing rectangle
+    Algorithms a;
+    std::vector<QPointF> points_of_polygon;
+
+    // Simplify buildings
+    if (points.size() > 1) simplifyBuildings(points);
+
+    // Process data
+    if (polygons.size() > 0)
+        for (QPolygonF polygon : polygons)
+        {
+            points_of_polygon.clear();
+            for (QPointF point : polygon)
+                points_of_polygon.push_back(point);
+
+            if (points_of_polygon.size() > 0)
+                simplifyBuildings(points_of_polygon);
+        }
+
+    // Clear created convex hulls and/or enclosing rectangles
+    ui->Canvas->clearCH();
+    ui->Canvas->clearMAER();
 }
 
 
 void MainForm::on_load_data_clicked()
 {
     CSV csvObject;
-    double xmin =  1e10;
-    double xmax = -1e10;
-    double ymin =  1e10;
-    double ymax = -1e10;
+    double xmin =  1e13;
+    double xmax = -1e13;
+    double ymin =  1e13;
+    double ymax = -1e13;
 
     // Choose file
-    QString file_path(QFileDialog::getOpenFileName(this, tr("Open CSV with polygons"), "../", tr("CSV Files (*.csv)")));
+    QString file_path(QFileDialog::getOpenFileName(this, tr("Open CSV file with polygons"), "../", tr("CSV files (*.csv)")));
 
     // Convert to string path
     std::string filename = file_path.toStdString();
 
-    // Read the chosen file
-    std::vector<QPolygonF> polygonVector = csvObject.read_CSV(filename, xmin, xmax, ymin, ymax);
+    // Read chosen file
+    std::vector<QPolygonF> polygonVector = csvObject.readCSV(filename, xmin, xmax, ymin, ymax);
 
     // Get canvas size
     int canvas_width = ui->Canvas->size().width();
@@ -79,19 +109,19 @@ void MainForm::on_load_data_clicked()
     // Size ratio for transformation to canvas
     double data_width = xmax - xmin;
     double data_height = ymax - ymin;
-    double x_ratio = data_width/canvas_width;
-    double y_ratio = data_height/canvas_height;
+    double xratio = data_width/canvas_width;
+    double yratio = data_height/canvas_height;
 
-    // Coordinates of top left corner of the canvas
+    // Coordinates of the top left corner of the canvas
     int xtopL = ui->Canvas->geometry().x();
     int ytopL = ui->Canvas->geometry().y();
 
-    // Translation parameter for transformation
-    double x_trans = xmin - xtopL;
-    double y_trans = ymin - ytopL;
+    // Translation
+    double xtrans = xmin - xtopL;
+    double ytrans = ymin - ytopL;
 
     // Draw polygons
-    ui->Canvas->drawPolygons(polygonVector, x_trans, y_trans, x_ratio, y_ratio);
+    ui->Canvas->drawPolygons(polygonVector, xtrans, ytrans, xratio, yratio);
 }
 
 

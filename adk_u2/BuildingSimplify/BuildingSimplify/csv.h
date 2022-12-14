@@ -9,7 +9,7 @@ class CSV
 {
 public:
     CSV();
-    std::vector<QPolygonF> read_CSV(std::string &filename, double &xmin, double &xmax, double &ymin, double &ymax);
+    std::vector<QPolygonF> readCSV(std::string &filename, double &xmin, double &xmax, double &ymin, double &ymax);
 };
 
 #endif // CSV_H

@@ -17,12 +17,10 @@ public:
     ~MainForm();
 
 private slots:
-
-    void on_clear_clicked();
-
-    void on_simplify_clicked(std::vector <QPointF> &points);
-
     void on_load_data_clicked();
+    void on_simplify_clicked();
+    void on_clear_clicked();
+    void simplifyBuildings(std::vector <QPointF> &points);
 
 private:
     Ui::MainForm *ui;
