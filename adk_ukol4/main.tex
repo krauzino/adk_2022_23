@@ -1,0 +1,727 @@
+\documentclass[oneside,12pt,a4paper]{book}
+\usepackage[utf8]{inputenc}
+\labelformat{section}{\thechapter.#1}
+\usepackage{listings}
+\usepackage{FEE}
+\pagestyle{CTU_FEE_pagestyle}
+
+%\usepackage{showframe}
+\input{acronyms}
+
+
+\coursename{Algoritmy digitální kartografie a GIS}
+
+
+\subject{Úloha č. 4:}
+\title{Energetické spliny}
+
+\author{Bc. Taťána Bláhová, Bc. Tomáš Krauz, Bc. Adéla Kučerová}
+
+
+\date{\today} % keep commented to add current date, empty for no date, input version of file (preferred)
+\lstset{ 
+showstringspaces=false, 
+numbers=left, 
+numberstyle=\ttfamily\small, 
+stepnumber=1, 
+firstnumber=last, 
+breaklines=T} 
+
+
+
+
+\begin{document}
+% \let\cleardoublepage\clearpage
+\maketitle
+
+    \vspace{-2cm}
+    \vfill
+    \begingroup
+    
+    \tableofcontents
+    % \printacronyms
+    \vspace{-0.5cm}
+    \printglossary[type=\acronymtype,title=\Large Acronyms]
+    \endgroup
+    \vspace{-1cm}
+% \chapter{Example}
+% \input{example.tex}
+
+
+\clearpage
+\chapter{Zadání}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=17cm]{fig/u4_zadani.PNG}
+    \caption{Zadání úlohy}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+
+
+%\chapter{Bonusové úlohy} 
+%\begin{enumerate}
+%    \item \emph{Partial modification: 1 prvek, 2 prvky. 20b}
+    %\item \emph{Partial modification: 2 prvky a překážka. +10b} % nemame
+   % \item \emph{Partial modification: 3 prvky.    +15b} % nemame
+    %\item \emph{Variabilní počet iterací, polohová chyba menší než grafická přednost mapy.     +10b} % nemame
+%\end{enumerate}
+
+
+
+
+
+\chapter{Popis a rozbor problému energetických splinů} 
+Úloha je založena na využití generalizačního operátoru Partial modification pro realizování odsunu či částečnou změnu tvaru jednoho prvku vůči pevné bariéře, nebo dvou prvků vzájemně. Tímto odsunem má dojít k odstranění možného grafického konfliktu. Je zde počítáno s jistou minimální vzdáleností prvků. Tato vzdálenost je volena v závislosti na měřítkovém čísle mapy (např. 1 mm v mapě). Implementace je provedena metodou energetických splinů.\par
+
+Energetický spline je používaný v oblasti PC grafiky, kde pro potřeby kartografické generalizace došlo k úpravě definice splinu. Operátor částečné modifikace (partial modification) je tak reprezentován parametrickou křivkou:
+\begin{equation}
+    d(s)=(s(x)-x_{(0)}(s), y(s)-y_{(0)}(s)),
+\end{equation}
+kde x(0), y(0) představují souřadnice vstupního prvku a souřadnice x,y jsou souřadnicemi výstupního prvku. Pro parametr s platí: $s \in <0,1>$.\par
+Příslušný energetický model pro křivku  \emph{L} a její délku \emph{l} má tvar
+\begin{equation}
+    E(d)=\int_{l}E_i(s)\mathrm{d}s + \int_{l}E_e(s)\mathrm{d}s,
+\end{equation}
+a zahrnuje vnitřní energii splinu $E_i$ (internal energy) a vnější energii $E_e$ (external energy), které
+ovlivňují tvar splinu. Cílem metody je nalézt jednu z mnoha deformací, která minimalizuje celkovou energii splinu. Výsledný spline musí zohledňovat vnitřní energii (tj. mechanické vlastnosti materiálu), tak i působení vnějších sil. Vnitřní spline zajišťuje ,aby  nebyl modifikován vnějšími silami.
+
+Vnitřní energie splinu je definována vztahem \cite{bader2001energy} a ovlivňuje průběh splinu a jeho tvar.
+
+\begin{equation}
+    E_i(s) = \frac{1}{2} \left( \alpha(s)\| d(s)\|^2 + \beta(s) \| \frac{\partial{d}(s)}{\partial{s}}\|^2 + \gamma(s) \| \frac{\partial^2d(s)}{\partial s^2}\|^2 \right),
+\end{equation}
+
+První člen měří vzdálenost mezi splinem a původním elementem, druhý elasticitu splinu a poslední tuhost splinu. 
+Vliv těchto faktorů je modelován s využitím trojice parametrů 
+$\alpha(s),\beta(s),\gamma(s)\in\mathbb{R^+} $. 
+Spline tedy může více či méně sledovat původní prvek a kopírovat jeho tvar \cite{kass1988snakes}, \cite{burghardt1997cartographic}.\par
+
+Vnější energie řídí deformaci způsobenou vnějšími silami.  Energetická funkce popisující silový model má mnoho podob. Z matematického pohledu by měla být spojitá v bodě, diferencovatelná a mít jednoduchý průběh bez oscilací. Čím větší jsou funkční hodnoty, tím silnější je jejich vliv na deformaci tvaru. Z kartografické generalizace existuje způsob, jak navrhnout energetickou funkci, jejichž cílem je generalizační operace partial displacement, při kterém se snažíme nepřiblížit k jinému prvku na vzdálenost menší než \textbf{\emph{d}}.
+
+Minimalizace celkové energie, 
+\begin{equation}
+    E(d(s))=\int_l F(s,d(s),d'(s),d''(s))ds,
+\end{equation}
+vede k využití Eulerovy-Lagrangeovy rovnice
+
+\begin{equation}
+     \frac{\partial F}{\partial y} - \frac{\partial }{\partial x}\frac{\partial F}{\partial y'} +\frac{\partial^2 }{\partial x^2}\frac{\partial F}{\partial y''} - \cdots + (-1)^n \frac{\partial^n }{\partial x^n}\frac{\partial F}{\partial y^n} = 0
+\end{equation}
+
+Aplikací na E(d) obdržíme 
+\begin{equation}
+    \frac{\partial F}{\partial y}= \alpha(s)d(s) + \bigtriangledown E_e (x(s),y(s)),
+\end{equation}
+
+\begin{equation}
+    \frac{\partial }{\partial x}\frac{\partial F}{\partial y'} = \frac{\partial }{\partial s}
+    \left( \beta(s)\frac{\partial d(s)}{\partial s} \right) =  \beta(s)\frac{\partial d^2(s)}{\partial s^2},
+\end{equation}
+
+\begin{equation}
+    \frac{\partial ^2}{\partial x^2}\frac{\partial F}{\partial y''} = \frac{\partial^2 }{\partial x^2}
+    \left( \gamma(s)\frac{\partial^2 d(s)}{\partial s^2} \right) =  \gamma(s)\frac{\partial d^4(s)}{\partial s^4},
+\end{equation}
+optimální řešení má pak tvar
+\begin{equation}
+    \alpha(s)d(s) + \beta(s)\frac{\partial d^2(s)}{\partial s^2} -\gamma(s)\frac{\partial d^4(s)}{\partial s^4} + \bigtriangledown E_e (x(s),y(s)) = 0,
+\end{equation}
+
+Rozepsáním po složkách dostaneme soustavu dvou parciálních rovnic. Ale počítáme s tím, že hodnoty $\alpha(s), \beta(s), \gamma(s)$ jsou hodnoty konstantní při ekvidistantním kroku \emph{h}, tak je možno získat Eulerovy rovnice v tomto tvaru
+
+\begin{equation}
+\alpha x + \beta\frac{\partial^2x}{\partial s^2} - \gamma\frac{\partial^4x}{\partial s^4} + \frac{\partial}{\partial x} E_e (x(s),y(s)) = 0
+\end{equation}
+
+\begin{equation}
+\alpha y + \beta\frac{\partial^2y}{\partial s^2} - \gamma\frac{\partial^4y}{\partial s^4} + \frac{\partial}{\partial y} E_e (x(s),y(s)) = 0
+\end{equation}
+
+Ale pokud je spline vzorkován konstantním krokem \emph{h}, můžeme použít diskrétní aproximaci. Proto je možné parciální derivace nahradit centrálními derivacemi.
+
+Pokud je vložíme do Eulerových rovnic, získáme soustavu lineárních rovnic
+
+\begin{equation}
+\alpha x_i+\beta(x_{i-1}-2x_i + x_{i+1})+ \beta(x_{i-1}-2x_i + x_{i+1})+\gamma(x_{i-2}-4x_{i-1} + 
+6x_i-4x_{i+1}+x_{i+2})+E_{e,x}
+\end{equation}
+\begin{equation}
+\alpha y_i+\beta(y_{i-1}-2y_i + y_{i+1})+ \beta(y_{i-1}-2y_i + y_{i+1})+\gamma(y_{i-2}-4y_{i-1} + 
+6y_i-4y_{i+1}+y_{i+2})+E_{e,y}
+\end{equation}
+
+Hodnoty $E_{e,x},E_{e,y}$ představují parciální derivace vnější energie podle proměnných $ x_i.y_i$. Z toho vyplývá, že spline musí být vzorkován nejméně pěti body $ p_{i-2},p_{i-1},p_i,p_{i+1},p_{i+2}$ 
+a tak příslušná maticová reprezentace má tvar 
+
+\begin{equation}
+A\bigtriangleup X + E_{e,x} = 0,
+\end{equation}
+\begin{equation}
+A\bigtriangleup Y + E_{e,y} = 0,
+\end{equation}
+kde A je pentadiagonální matice
+
+\begin{equation}
+\begin{bmatrix} 
+a & b & c & 0& \cdots & 0 & 0 & 0 & 0  \\
+b & a & b & c& \cdots & 0 & 0 & 0 & 0  \\
+c & b & a & b &\cdots & 0 & 0 & 0 & 0  \\
+0 & c & b & a& \cdots & 0 & 0 & 0 & 0  \\
+\vdots & \vdots &\vdots &\vdots & \ddots & \vdots &\vdots &\vdots &\vdots \\ 
+0 & 0 & 0 & 0 &  \cdots & a & b & c & 0 \\
+0 & 0 & 0 & 0 &  \cdots &b & a & b & c \\
+0 & 0 & 0 & 0 &  \cdots &c & b & a & b \\
+0 & 0 & 0 & 0 & \cdots &0 & c & b & a \\
+\end{bmatrix},
+\end{equation}
+jejiž prvky vypočítáme z 
+
+\begin{equation}
+a = \alpha + \frac{2\beta}{h^2}+\frac{6\gamma}{h^4}, \quad b = -\frac{\beta}{h^2}-\frac{4\gamma}{h^4}, \quad 
+c = \frac{\gamma}{h^4}
+\end{equation}
+Protože je matice A singulární, tak hodnoty  $\bigtriangleup X_{(i)},\bigtriangleup Y_{(i)}$ nemůžeme určit přímo a je potřeba je vypočítat pomocí iterace
+
+\begin{equation}
+\bigtriangleup X_{(i)} = (A+\lambda I)^{-1}(\lambda \bigtriangleup X_{i-1}- E_{e,x}),
+\end{equation}
+\begin{equation}
+\bigtriangleup Y_{(i)} = (A+\lambda I)^{-1}(\lambda \bigtriangleup Y_{i-1}- E_{e,y}),
+\end{equation}
+kde 
+\begin{equation}
+\bigtriangleup X_{(i)} = X_{(i)} - X_{(0)}
+\end{equation}
+\begin{equation}
+\bigtriangleup Y_{(i)} = Y_{(i)} - Y_{(0)}
+\end{equation}
+
+jsou představeny jako souřadnicové rozdíly vrcholů splinu v jejich $i$-té iteraci a počáteční aproximací představované lomenou čarou. Pro $i = 0$, platí
+
+\begin{equation}
+\bigtriangleup X_{(0)} = Y_{(0)} = 0
+\end{equation}
+
+Parametr $\lambda$ ovlivňuje rychlost konvergence iteračního procesu.
+
+\section{Operace Partial Displacement}
+Jedná se o generalizační operaci, která provádí komplexní korekci tvaru geometrické polohy a generalizačního prvku. Zahrnuje posun a změnu tvaru častí prvků, které se přiblíží k jinému prvku na určitou mez danou hodnotou \textbf{\emph{\underline{d}}}. Tato generalizace se používá u prvků, které se nacházejí blízko sebe a může dojít k vzájemnému překrytí. A díky tomu existují základní generalizační schémata. V úloze byla použita tato 2 generalizační schémata.
+
+\begin{enumerate}
+    \item  Energetické spliny - 1 prvek, 1 bariéra
+    \item   Energetické spliny - 2 prvky, žádná bariéra   
+\end{enumerate}
+
+Máme energetickou funkci, 
+
+\begin{equation}
+ E_e(x,y) =
+  \begin{cases}
+    c(1-\frac{d}{\underline{d}}),       & \quad d<\underline{d},\\
+    0,  & \quad jinak,
+  \end{cases}
+\end{equation}
+která je navržena tak, aby zabránila přiblížení dvou prvků ve vzdálenosti menší než 
+$\textbf{\underline{d}}$. Můžeme $\textbf{\underline{d}}$ chápat jako minimální vzdálenost 
+při které nedojde ke kartografickému slití v měřítku digitalizace. Vzdálenost je měřena mezi vrcholy 
+$p_i $
+jednoho prvku a liniovým segmentem druhého prvku. 
+Konstanta $c,c\in \mathbb{R^+}$ 
+ovlivňuje hodnotu 
+gradientu a reguluje spád funkce. Iterativní řešení diskretizované varianty splinu využívá parciální 
+derivaci $E_e(x,y)$ dle $x,y$. Pokud $d < \underline{d}$ funkci přepíšeme do tvaru 
+
+\begin{equation}
+E_e(x,y) = c \left(1-\sqrt{\frac{(x-x_n)^2 + (y-y_n)^2}{\underline{d}}}\right),
+\end{equation}
+kde $ q_n = [x_n,y_n]$ je nejbližší vrchol k vrcholu $p = [x,y]$, parciální derivace mají tvar
+
+\begin{equation}
+ \frac{\partial E_e(x,y)}{\partial x} = -c\frac{x-x_n}{d\underline{d}}
+\end{equation}
+\begin{equation}
+\frac{\partial E_e(x,y)}{\partial y} = -c\frac{y-y_n}{d\underline{d}}
+\end{equation}
+Pro $d \geq \underline{d}$, parciální derivace mají tvar
+\begin{equation}
+ \frac{\partial E_e(x,y)}{\partial x} = \frac{\partial E_e(x,y)}{\partial y} = 0
+\end{equation}
+Změna polohy vrcholů splinu, ovlivňující tvar splinu, probíhá pouze ve směru $ p \rightarrow q_n$. Výsledné posuny vycházejí z požadavku vyrovnaného stavu mezi vnitřní a vnější energií.
+
+
+\section{Energetické spliny - 1 prvek, 1 bariéra}
+V tomto případě je do aplikace načtena právě jedna bariéra a jeden element, který je bariérou ovlivněn. Při spuštění funkce dojde k modifikaci pouze elementu, který je posunut. Bariéra je považována za pevný prvek, kterým pohnuto nebylo. Generalizovaný tvar je představován polynií $L = \{p_1,...,p_n\}$ s \emph{n} vrcholy $p_i = [x_i,y_i]$, bariéra je polynie $B = [q_1,...,q_m]$ s \emph{m} vrcholy $q_j = [x_j,y_j]$.
+
+Energetická funkce
+\begin{equation}
+ E_e(x_i,y_i) =
+  \begin{cases}
+    c(1-\frac{d_i}{\underline{d}}),       & \quad d_i<\underline{d},\\
+    0,  & \quad jinak,
+  \end{cases}
+\end{equation}
+
+Vzdálenost $d_i$ je měřena mezi vrcholem $p_i \in L$ a nejbližším bodem $q_n \in B$. 
+
+\begin{equation}
+d_i = \sqrt{(x_i-x_n)^2 + (y_i-y_n)^2}
+\end{equation}
+
+Pro $d_i < \underline{d}$, parciální derivace $E_e(x_i,y_i)$ mají tvar
+
+\begin{equation}
+ \frac{\partial E_e(x_i,y_i)}{\partial x_i} = -c\frac{x_i-x_n}{d_i\underline{d}}
+\end{equation}
+\begin{equation}
+\frac{\partial E_e(x_i,y_i)}{\partial y_i} = -c\frac{y_i-y_n}{d_i\underline{d}}
+\end{equation}
+jinak
+\begin{equation}
+ \frac{\partial E_e(x_i,y_i)}{\partial x_i} = \frac{\partial E_e(x_i,y_i)}{\partial y_i} = 0.
+\end{equation}
+
+V rámci celého předzpracování je provedena konverze polylinie na na maticovou podobu. Generalizovaný prvek $L$ je popsán maticemi $X(n,1)$ a $Y(n,1)$, bariéra $B$ maticemi$ X'(m,1)$ a $Y'(n,1)$. Nejdříve se vypočítá krok $h$ ze souřadnicových rozdílů.
+\begin{equation}
+\delta X = x_{i+1}-x_i,\quad \delta Y = y_{i+1}-y_i,
+\end{equation}
+ a vzdálenost mezi vrcholy generalizované polylinie
+ \begin{equation}
+H = \sqrt{ \| \delta X\|^2 +\| \delta Y\|^2}
+\end{equation}
+Výpočet normy můžeme realizovat s využitím násobení po složkách
+Výsledný krok $h$ určíme jako střední hodnotu $H$.
+
+Pro zadané hodnoty $\alpha ,\beta ,\gamma $ a krok $h$ 
+určíme hodnoty koeficientů $a, b, c$ a naplní se matice $A$, 
+která je během iteračního procesu konstantní. Pokud 
+$B = A+ \lambda I$, můžeme vypočítat inverzi $B^{-1}$.
+Pro iterační proces nejdříve musíme inicializovat hodnoty matic $X_{(0)} = X$ a $Y_{(0)} = Y$. Pro předem zadaný počet iterací vytvoříme matice  $E_x(n,1)$ a $E_x(n,1)$ a vypočítáme hodnoty prvků. Pro každý bod $p_i \in L, p_i = [x_i,y_i]$ a nalezneme nejbližší bod $q_n \in B, q_n = [x_n,y_n],$ a vypočteme hodnoty parciálních derivací vnější energie  $\frac{\partial E_e(x_i,y_i)}{\partial x_i}, 
+\frac{\partial E_e(x_i,y_i)}{\partial y_i}  $
+v tomto bodě. Určíme hodnoty posunů $\bigtriangleup X_{(i)}, \bigtriangleup Y_{(i)}$
+
+ \begin{equation}
+\bigtriangleup X_{(i)} = B^{-1}(\lambda \bigtriangleup X_{(i-1)} E_{e,x}), 
+\quad 
+\bigtriangleup Y_{(i)} = B^{-1}(\lambda \bigtriangleup Y_{(i-1)}E_{e,y})
+\end{equation}
+a vypočítáme souřadnice vrcholů splinu
+ \begin{equation}
+ X_{(i)} = X + \bigtriangleup X_{(i)},
+\quad 
+ Y_{(i)} = Y + \bigtriangleup Y_{(i)}
+\end{equation}
+Inkrementuje se index $i = i+1$. Pokud $i$ < maximální počet iterací, jdi na bod a) jinak ukončí iterační proces. Poté je provedena konverze z maticové reprezentace na spojový seznam vrcholů reprezentující generalizovanou polylinii. 
+
+\section{Energetické spliny - 2 prvky, žádná bariéra}
+V tomto případě jsou do aplikace načteny dva elementy, které se vzájemně ovlivní a posunou se vůči sobě. Ani jeden z prvků není brán za pevný. Prvník prvek je představován polynií $L = \{p_1,...,p_n\}$ s \emph{n} vrcholy $p_i = [x_i,y_i]$, druhý prvek je polynie $L' = [q_1,...,q_m]$ s \emph{m} vrcholy $q_j = [x_j,y_j]$. Energetická funkce zohledňuje vzájemný vliv obou prvků. Energetická funkce pro polylinii $L'$ má tvar
+\begin{equation}
+ E_e(x_i,y_i) =
+  \begin{cases}
+    c(1-\frac{d_j}{\underline{d}}),       & \quad d_j<\underline{d},\\
+    0,  & \quad jinak,
+  \end{cases}
+\end{equation}
+kde $d_j$ představuje vzdálenost mezi vrcholem $q_j \in L'$ a nejbližším bodem $p_n \in L$ 
+\begin{equation}
+d_j = \sqrt{(x_j-x_n)^2 + (y_j-y_n)^2}
+\end{equation}
+
+\begin{equation}
+ \frac{\partial E_e(x_j,y_j)}{\partial x_j} = -c\frac{x_j-x_n}{d_j\underline{d}}
+\end{equation}
+\begin{equation}
+\frac{\partial E_e(x_j,y_j)}{\partial y_j} = -c\frac{y_j-y_n}{d_j\underline{d}}
+\end{equation}
+jinak
+\begin{equation}
+ \frac{\partial E_e(x_j,y_j)}{\partial x_j} = \frac{\partial E_e(x_j,y_j)}{\partial y_j} = 0.
+\end{equation}
+
+Vrcholy obou polylinií, pro které platí $d_i < d$ nebo $d_j < \underline{d}$, se od sebe vzájemně posunují ve směrech 
+$p_i \rightarrow q_n$ a $q_j \rightarrow p_n$.
+
+Výpočty parciální derivací energetické funkce je nutné mít tak, aby na změny vrcholu první polylinie mohla reagovat i polylinie druhá. Takže každá polylinie bude mít vlastní matici A. Generalizovaný prvek $L$ je popsán maticemi $X(n,1)$ a $Y(n,1)$, generalizovaný prvek $L'$ je popsán maticemi $X'(m,1)$ a $Y'(n,1)$
+Vypočte se krok $h$ ze souřadnicových rozdílů.
+\begin{equation}
+\delta X = x_{i+1}-x_i,\quad \delta Y = y_{i+1}-y_i, \quad \delta X' = x_{j+1}-x_{ij},\quad \delta Y' = y_{j+1}-y_{ij},
+\end{equation}
+
+a vzdálenosti mezi vrcholy obou generalizovaných polylinií
+ \begin{equation}
+H = \sqrt{ \| \delta X\|^2 +\| \delta Y\|^2}, \quad H' = \sqrt{ \| \delta X'\|^2 +\| \delta Y'\|^2}
+\end{equation}
+
+Výsledné kroky $h, h'$ určíme jako střední hodnoty $H,H'$.
+
+Pro zadané hodnoty $\alpha ,\beta ,\gamma $ a krok $h, h'$ 
+určíme hodnoty koeficientů $a, b, c$ a naplní se matice $A, A'$, 
+které jsou během iteračního procesu konstantní. Pokud 
+$B = A+ \lambda I$, $B' = A'+ \lambda I$, můžeme vypočítat inverzi $B^-1$.
+Pro iterační proces nejdříve musíme inicializovat hodnoty matic 
+$X_{(0)} = X$ a $Y_{(0)} = Y$
+\begin{equation}
+X_{(0)} = X \quad Y_{(0)} = Y \quad X'_{(0)} = X' \quad Y'_{(0)} = Y'
+\end{equation}
+
+Pro předem zadaný počet iterací vytvoříme matice  $E_x(n,1)$, $E_x(n,1)$, $E'_x(m,1)$ a $E'_x(m,1)$ a vypočítají se hodnoty prvků.
+Pro každý bod $p_i \in L, p_i = [x_i,y_i]$ a nalezneme nejbližší bod $q_n \in B, q_n = [x_n,y_n],$ a vypočteme hodnoty parciálních derivací vnější energie  $\frac{\partial E_e(x_i,y_i)}{\partial x_i}, 
+\frac{\partial E_e(x_i,y_i)}{\partial y_i}  $
+v tomto bodě.
+Pro každý bod $q_j \in L, q_j = [x_j,y_j]$ a nalezneme nejbližší bod $p_n \in B, q_n = [x_n,y_n],$ a vypočteme hodnoty parciálních derivací vnější energie  $\frac{\partial E_e(x_j,y_j)}{\partial x_j}, 
+\frac{\partial E_e(x_j,y_j)}{\partial y_j}  $
+v tomto bodě. Určíme hodnoty posunů $\bigtriangleup X_{(i)}, \bigtriangleup Y_{(i)}$
+ \begin{equation}
+\bigtriangleup X_{(i)} = B^{-1}(\lambda \bigtriangleup X_{(i-1)} E_{e,x}), 
+\quad 
+\bigtriangleup Y_{(i)} = B^{-1}(\lambda \bigtriangleup Y_{(i-1)}E_{e,y})
+\end{equation}
+A určíme hodnoty posuny $\bigtriangleup X'_{(i)}, \bigtriangleup Y'_{(i)}$
+ \begin{equation}
+\bigtriangleup X'_{(i)} = B'^{-1}(\lambda \bigtriangleup X'_{(i-1)} E'_{e,x}), 
+\quad 
+\bigtriangleup Y'_{(i)} = B'^{-1}(\lambda \bigtriangleup Y'_{(i-1)}E'_{e,y})
+\end{equation}
+
+a vypočítáme souřadnice vrcholů splinu.
+ \begin{equation}
+ X_{(i)} = X + \bigtriangleup X_{(i)},
+\quad 
+ Y_{(i)} = Y + \bigtriangleup Y_{(i)}
+ \quad 
+ X'_{(i)} = X' + \bigtriangleup X'_{(i)},
+\quad 
+ Y'_{(i)} = Y' + \bigtriangleup Y'_{(i)}
+\end{equation}
+Inkrementuje se index $i = i+1$. Pokud je $i$ menší než maximální počet iterací, jdi na bod a), jinak ukonči iterační proces. Poté je provedena konverze z maticové reprezentace na spojový seznam vrcholů reprezentující generalizovanou polylinii. 
+
+Principem energetických splinů je realizace odsunu či změna tvaru prvků vůči jinému za účelem odstranění grafického konfliktu. K výpočtu je brána v potaz minimální vzdálenost dotčených prvků, která má být mezi objekty.\par
+Do výpočtu vstupuje vnitřní a vnější energie splinu, které ovlivňují tvar splinu. Jak je uvedeno výše, cílem metody je nalezení minimální celkové energie splinu. Pokud je spline vzorkován s konstantním krokem $h$, lze použít také jeho diskrétní aproximaci, která je pro praktické výpočty vhodnější. Parciální derivace tak lze nahradit centrálními diferencemi.\par
+
+\chapter{Funkce aplikace}
+Výsledkem jsou jedna nebo více posunutých křivek v závislosti na vybrané metodě. Vstupními daty jsou existující kartografická data (liniové prvky). Využitím generalizačního operátu Partial Modification dojde k posouzení jejích vzájemného umístění. V závislosti na vzdálenosti lomových bodů a typu prvku (bariéra, prvek) je buď zachován stávající stav, pokud jsou od sebe prvky dostatečně vzdálené, nebo dojde k posunu prvku elementu, nebo prvků vzájemně, jedná-li se o dva elementy.\par
+
+\pagebreak
+\chapter{Vzhled aplikace}
+
+Po spuštění aplikace se zobrazí následující okno, kde je možné provést tyto akce - načíst CSV soubor s prvkem a bariérou (File), změnit aktuálně ručně kreslený prvek (Input), zvolit metodu pro odsunutí (Displace) a vyčistit Canvas (Clear). \par
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=18 cm]{fig/vzhled_aplikace.PNG}
+    \caption{Vzhled aplikace}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+\pagebreak
+\chapter{Vstupní data} 
+Aplikace očekává na vstupu CSV soubor se souřadnicemi bodů příslušného prvku v souřadnicovém systému S-JTSK. \par
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=8.5 cm]{fig/vstup_souradnice.PNG}
+    \caption{Formát vstupního souboru}
+    \label{fig:Zadání úlohy}
+\end{figure}
+Pomocí tlačítka File je možné postupně načíst soubor s prvkem a bariérou, přičemž nezáleží na pořadí, v jakém uživatel soubory načte.
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=7 cm]{fig/open_file.PNG}
+    \caption{Načtení vstupních souborů}
+    \label{fig:Zadání úlohy}
+\end{figure}
+
+
+\chapter{Výstupní data} 
+Po kliknutí na zvolenou metodu aplikace provede modifikaci buďto jednoho nebo dvou prvků (resp. prvku i bariéry). V případě zvolení metody \emph{Displace 2 elements} se soubor (linie) načtený jako bariéra chová jako prvek a je také posunut. \par
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=18 cm]{fig/displace1.PNG}
+    \caption{Modifikace 1 prvku (element) - nová poloha prvku vykreslena zeleně}
+    \label{fig:csv}
+\end{figure}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=18 cm]{fig/displace2.PNG}
+    \caption{Modifikace 2 prvků (element i bariéra) - nová poloha prvků vykreslena zeleně a žlutě}
+    \label{fig:csv}
+\end{figure}
+
+\pagebreak
+\chapter{Problematické situace a jejich rozbor}
+Při spuštění aplikace nefunguje obyčejné vytvoření linií pomocí ručního klikání a funkce je možné spustit po nahrání externího souboru. Tento problém nebyl prakticky vyřešen. Teoretickým řešením by zřejmě byla duplikace a úprava kódu pro samostatné fungování pro nahrání souboru a ručního klikání společně s toggle tlačítkem, kde by došlo k přepínání mezi těmito dvěma kódy.\par
+
+%Na vstupu během nahrávání je očekáván vždy jeden prvek pro element či bariéru, ačkoliv je očekáván vstup multilinie. Tento problém nebyl vyřešen a nebyla nalezena správná alternativa. \par
+
+Aplikace spadne při pokusu o zavření dialogového okna "Open file with points", důvodem je neošetření varianty, kdy nebyl zvolen žádný soubor.\par
+
+Do aplikace je možnost opakovaného nahrání souboru pro element či bariéru. Tento problém nebyl ošetřen, jelikož se předpokládá, že uživatel nahraje pouze nutné soubory pro element a bariéru, a následně spustí funkci Displace.\par
+
+\pagebreak
+
+\chapter{Dokumentace} 
+\section{Třída Algorithms}
+    \begin{itemize}
+    \item $double \;getEuclDistance(double\; x1,\; double \; y1,\; double \; x2,\; double\ ; y2)$
+        \begin{itemize}
+        \item  Euklidovská vzdálenost dvou bodů
+        \end{itemize}
+
+    \item $std\;:\;:tuple<double,\; double,\; double> getPointLineDistance(double\; x,\; double\; y,\; double\; x1,\; \\double\; y1,\; double\; x2,\; double\; y2)$
+        \begin{itemize}
+        \item  uložení vzdáleností bodu a linie
+        \end{itemize}
+
+    \item $std\;:\;:tuple<double,\; double,\; double> getPointLineSegmentDistance(double\; x,\; double\; y,\; double\; x1,\; \\double\; y1,\; double\; x2,\; double\; y2)$
+        \begin{itemize}
+        \item  uložení vzdáleností bodu a segmentu linie
+        \end{itemize}
+        
+    \item $std\;:\;:tuple<int,\; double,\; double,\; double> getNearestLineSegmentPoint(double\; xq,\; double\; yq,\; \\Matrix\; \&X,\; Matrix\; \&Y)$
+        \begin{itemize}
+        \item  získání nejbližšího segmentu linie
+        \end{itemize}
+
+    \item $Matrix\; createA(double\; alfa,\; double\; beta,\; double\; gamma,\; double\; h,\; int\; n)$
+        \begin{itemize}
+            \item  vytvoření matice A
+        \end{itemize}
+
+    \item $std::vector<QPointF>\; minEnergySpline1Element1Barrier(std::vector<QPointF>\; element,\;std::vector<QPointF>\; barrier,\; double\; alfa,\; double\; beta,\; double\; gamma,\; \\double\; lambda,\; double\; dmin,\; int\; iter)$
+        \begin{itemize}
+            \item minimální energetické spliny mezi prvkem a bariérou
+        \end{itemize}
+
+    \item $std::tuple<std::vector<QPointF>,\; std::vector<QPointF>>\; \\minEnergySpline2Elements(std::vector<QPointF>\; element1,std::vector<QPointF>\; element2,\; double\; alfa,\; double\; beta,\; double\; gamma,\; double\; lambda,\; double\; dmin,\; int\; iter)$
+        \begin{itemize}
+            \item  minimální energetické spliny mezi 2 elementy
+        \end{itemize}
+
+    \item $double\; getEx(double\; x,\; double\; y,\; double\; xn,\; double\; yn,\; double\; dmin)$
+        \begin{itemize}
+            \item  získá souřadnice Ex
+        \end{itemize}
+
+    \item $double\; getEy(double\; x,\; double\; y,\; double\; xn,\; double\; yn,\; double\; dmin)$
+        \begin{itemize}
+            \item  získá souřadnice Ey 
+        \end{itemize}
+
+    \item $static std::vector<QPointF>\; transformPoints(std::vector<QPointF>\; \&points,\; \\double\; \&trans\_x,\; double\; \&trans\_y,\; double\; \&scale,\; int\; \&offset\_x,\; int\; \&offset\_y)$
+        \begin{itemize}
+            \item  transformuje souřadnice bodů pro tvorbu min-max boxu
+        \end{itemize}      
+    \end{itemize}
+
+   \section{Třída Draw} 
+    \begin{itemize}
+    
+    \item $void\; mousePressEvent(QMouseEvent *event)$
+     \begin{itemize}
+     \item  vrátí souřadnice kurzoru po kliknutí na Canvas
+     \end{itemize}
+     
+    \item $void\; paintEvent(QPaintEvent *event)$
+    \begin{itemize}
+    \item  vykreslí body na Canvas
+    \end{itemize}
+    
+    \item $void\; switchDrawnElement()\{draw\_element\;=!\;draw\_element;\}$
+    \begin{itemize}
+    \item  změna typu kreslení bariéra/prvek
+    \end{itemize}
+
+    \item $std::vector<QPointF>getElement()\{return \; pointsElement;\}$
+    \begin{itemize}
+    \item vrátí prvek
+    \end{itemize}
+    
+    \item $std::vector<QPointF>getBarrier()\{return\; pointsBarrier;\}$
+    \begin{itemize}
+    \item  vrátí bariéru
+    \end{itemize}
+
+    \item $std::vector<QPointF>getDisplaced()\{return\; displaced;\}$
+    \begin{itemize}
+    \item  posun
+    \end{itemize}
+
+    \item $void\; setElement(std::vector<QPointF> \&element\_)\{element=element\_;\}$
+    \begin{itemize}
+    \item  nastavení prvku
+    \end{itemize}
+
+    \item $void\; setBarrier(std::vector<QPointF> \&barrier\_)\{barrier=barrier\_;\}$
+    \begin{itemize}
+    \item  nastavení bariéry
+    \end{itemize}
+
+    \item $void\; setDisplaced(std::vector<QPointF> \&displaced\_)\{displaced=displaced\_;\}$
+    \begin{itemize}
+    \item  nastavení posunů 1 prvku
+    \end{itemize}
+
+    \item $void\; setDisplaced2(std::vector<QPointF> \&displaced2\_)\{displaced2 = displaced2\_;\}$
+    \begin{itemize}
+    \item  nastavení posunů 2 prvků
+    \end{itemize}
+    
+    \item $void\; drawCSVPointsElement(std::vector<QPointF> \&pointsElement);$
+    \begin{itemize}
+    \item  vykreslí načtené body prvku na Canvas
+    \end{itemize}
+
+    \item $void\; drawCSVPointsBarrier(std::vector<QPointF> \&pointsBarrier);$
+    \begin{itemize}
+    \item  vykreslí načtené body bariéry na Canvas
+    \end{itemize}
+
+  \begin{comment} % proc block comment nefunguje?
+    %\item $void\; setCSVPointsElement(std::vector<QPointF> \&csv\_points)\\{pointsElement.insert(pointsElement.end(),\; csv\_points.begin(),\; csv\_points.end());}$
+    \begin{itemize}
+  %  \item  ----------------------
+    \end{itemize}
+
+  %  \item $void\; setCSVPointsBarrier(std::vector<QPointF> \&csv\_points)\\{pointsBarrier.insert(pointsBarrier.end(),\; csv\_points.begin(),\; csv\_points.end());}$
+    \begin{itemize}
+   % \item  ----------------------
+    \end{itemize}
+
+   % \item $double\; getScale()\{return\; scale;\}$
+    \begin{itemize}
+   % \item  -----------------------
+    \end{itemize}
+    
+   % \item $double\; getTransX()\{return\; trans\_x;\}$
+    \begin{itemize}
+   % \item  -----------------------
+    \end{itemize}
+
+    
+   % \item $double\; getTransY()\{return\; trans\_y;\}$
+    \begin{itemize}
+   % \item  -----------------------
+    \end{itemize}
+
+ %   \item $int\; getDeltaX()\{return\; offset\_x;\}$
+    \begin{itemize}
+  %  \item  -----------------------
+    \end{itemize}
+
+   % \item $int\; getDeltaY()\{return\; offset\_y;\}$
+    \begin{itemize}
+  %  \item  -----------------------
+    \end{itemize}
+
+  %  \item $void\; setScale(double\; \&scale\_)\{scale=scale\_;\}$
+    \begin{itemize}
+  %  \item  -----------------------
+    \end{itemize}
+
+  %  \item $void\; setTrans(double\; \&trans\_x\_,\; double\; \&trans\_y\_)\{trans\_x=trans\_x\_,\; trans\_y=trans\_y\_;\}$
+    \begin{itemize}
+  %  \item  -----------------------
+    \end{itemize}
+
+   % \item $void\; setOffsets(int\; \&offset\_x\_,\; int\; \&offset\_y\_)\{offset\_x=offset\_x\_,\; offset\_y=offset\_y\_;\}$
+  %  \begin{itemize}
+   % \item  -----------------------
+%    \end{itemize}
+    \end{comment}
+
+    \item $void\; clearElement()\{element.clear();\}$
+    \begin{itemize}
+    \item  vymaže prvek z Canvasu
+    \end{itemize}
+
+    \item $void\; clearBarrier()\{barrier.clear();\}$
+    \begin{itemize}
+    \item  vymaže bariéru z Canvasu
+    \end{itemize}
+
+    \item $void\; clearDisplaced()\{displaced.clear();\}$
+    \begin{itemize}
+    \item  vymaže odsunutý prvek z Canvasu
+    \end{itemize}
+
+    \item $void\; clearDisplaced2()\{displaced2.clear();\}$
+    \begin{itemize}
+    \item  vymaže odsunutou bariéru (druhý prvek) z Canvasu
+    \end{itemize}
+
+    \item $void\; clearPointsElement()\{pointsElement.clear();\}$
+    \begin{itemize}
+    \item  vymaže načtené body prvku z Canvasu
+    \end{itemize}
+
+    \item $void\; clearPointsBarrier()\{pointsBarrier.clear();\}$
+    \begin{itemize}
+    \item  vymaže načtené body bariéry z Canvasu
+    \end{itemize}
+
+\end{itemize}
+
+   \section{Třída CSV}
+   \begin{itemize}
+    \item $static\; std::vector<std::vector<std::string>>\; readCSV(std::string\; \&filename);$
+    \begin{itemize}
+\item načte vstupní CSV soubor
+\end{itemize}
+\item $static\; std::vector<QPointF>\; getPoints(std::vector<std::vector<std::string>>\; \&csv\_content,\; double\; \&x\_min,\; double\; \&x\_max,\; double\; \&y\_min,\; double\; \&y\_max);$
+\begin{itemize}
+\item vrací vektor QPointF z CSV souboru
+\end{itemize}
+\end{itemize}
+
+   \section{Třída Mainform}
+    \begin{itemize}
+
+    \item $void\; on\_actionOpen\_element\_triggered();$
+    \begin{itemize}
+        \item  akce pro načtení vstupního souboru s elementem
+    \end{itemize}
+  
+    \item $void\; on\_actionOpen\_barrier\_triggered();$
+    \begin{itemize}
+        \item  akce pro načtení vstupního souboru s bariérou
+    \end{itemize}
+    
+    \item $void\; on\_actionElement\_Barrier\_changed();$
+    \begin{itemize}
+        \item  akce po stisknutí tlačítka s prvkem a bariérou
+    \end{itemize}
+    
+    \item $void\; on\_actionDisplace\_triggered();$
+    \begin{itemize}
+        \item  akce po stisknutí tlačítka Displace 1 element/Displace 2 elements
+    \end{itemize}
+
+    \item $void\; on\_actionDisplace\_2\_elements\_triggered();$
+    \begin{itemize}
+        \item  akce po stisknutí tlačítka se 2 prvky
+    \end{itemize}
+        
+    \item $void\; on\_actionClear\_all();$
+    \begin{itemize}
+        \item  akce pro vyčištění Canvasu
+    \end{itemize}
+
+\end{itemize}
+
+\pagebreak
+\chapter{Závěr} 
+Byla vytvořena aplikace pro realizaci odsunu a částečnou změnu tvaru elementu pomocí generalizačního operátoru Partial Modification, aby se předešlo grafickému konfliktu. Aplikace byla napsána pro stavy prvek a prvek, nebo prvek a bariéra, kdy modifikovaným prvkem je vždy element a bariéra zůstane beze změny.\par
+
+
+
+\begingroup
+    \pageclear
+    \printbibliography[title=Literatura]
+\endgroup
+
+% \begingroup
+%     \let\clearpage\relax
+%     \printbibliography[title=References]
+% \endgroup
+
+\end{document}

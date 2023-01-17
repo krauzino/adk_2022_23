@@ -1,0 +1,10 @@
+debug/algorithms.o
+debug/csv.o
+debug/draw.o
+debug/main.o
+debug/mainform.o
+debug/matrix.o
+debug/sortpointsbyx.o
+debug/sortpointsbyy.o
+debug/moc_draw.o
+debug/moc_mainform.o
