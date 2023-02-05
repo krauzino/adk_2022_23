@@ -26,12 +26,14 @@ void MainForm::on_pushButton_File_clicked()
 
     // Convert to string path
     std::string filename = file_path.toStdString();
-
+if (filename.length() > 0)
+    {
     // Read the chosen file
     std::vector<QPolygon> polygonVector = csvObject.readCsv(filename);
 
     // Draw polygons
     ui->Canvas->drawPolygons(polygonVector);
+    }
 }
 
 void MainForm::on_pushButton_Position_clicked()

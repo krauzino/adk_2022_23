@@ -11,13 +11,14 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include "draw.h"
+#include <draw.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -27,15 +28,16 @@ public:
     QHBoxLayout *horizontalLayout;
     Draw *Canvas;
     QVBoxLayout *verticalLayout;
-    QPushButton *pushButton;
+    QLabel *label_4;
+    QPushButton *pushButton_File;
+    QLabel *label_2;
+    QComboBox *comboBox;
     QSpacerItem *verticalSpacer_2;
-    QPushButton *pushButton_4;
-    QSpacerItem *verticalSpacer_4;
-    QPushButton *pushButton_2;
+    QPushButton *pushButton_Position;
     QLabel *label;
+    QLabel *label_3;
+    QPushButton *pushButton_Clear;
     QSpacerItem *verticalSpacer;
-    QPushButton *pushButton_3;
-    QSpacerItem *verticalSpacer_3;
 
     void setupUi(QWidget *MainForm)
     {
@@ -56,46 +58,55 @@ public:
 
         verticalLayout = new QVBoxLayout();
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        pushButton = new QPushButton(MainForm);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        label_4 = new QLabel(MainForm);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
 
-        verticalLayout->addWidget(pushButton);
+        verticalLayout->addWidget(label_4);
+
+        pushButton_File = new QPushButton(MainForm);
+        pushButton_File->setObjectName(QString::fromUtf8("pushButton_File"));
+
+        verticalLayout->addWidget(pushButton_File);
+
+        label_2 = new QLabel(MainForm);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+
+        verticalLayout->addWidget(label_2);
+
+        comboBox = new QComboBox(MainForm);
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+
+        verticalLayout->addWidget(comboBox);
 
         verticalSpacer_2 = new QSpacerItem(20, 28, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer_2);
 
-        pushButton_4 = new QPushButton(MainForm);
-        pushButton_4->setObjectName(QString::fromUtf8("pushButton_4"));
+        pushButton_Position = new QPushButton(MainForm);
+        pushButton_Position->setObjectName(QString::fromUtf8("pushButton_Position"));
 
-        verticalLayout->addWidget(pushButton_4);
-
-        verticalSpacer_4 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout->addItem(verticalSpacer_4);
-
-        pushButton_2 = new QPushButton(MainForm);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-
-        verticalLayout->addWidget(pushButton_2);
+        verticalLayout->addWidget(pushButton_Position);
 
         label = new QLabel(MainForm);
         label->setObjectName(QString::fromUtf8("label"));
 
         verticalLayout->addWidget(label);
 
+        label_3 = new QLabel(MainForm);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+
+        verticalLayout->addWidget(label_3);
+
+        pushButton_Clear = new QPushButton(MainForm);
+        pushButton_Clear->setObjectName(QString::fromUtf8("pushButton_Clear"));
+
+        verticalLayout->addWidget(pushButton_Clear);
+
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer);
-
-        pushButton_3 = new QPushButton(MainForm);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-
-        verticalLayout->addWidget(pushButton_3);
-
-        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout->addItem(verticalSpacer_3);
 
 
         horizontalLayout->addLayout(verticalLayout);
@@ -109,11 +120,16 @@ public:
     void retranslateUi(QWidget *MainForm)
     {
         MainForm->setWindowTitle(QCoreApplication::translate("MainForm", "Point in polygon", nullptr));
-        pushButton->setText(QCoreApplication::translate("MainForm", "Load file", nullptr));
-        pushButton_4->setText(QCoreApplication::translate("MainForm", "Switch mode", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("MainForm", "Analyze position", nullptr));
+        label_4->setText(QCoreApplication::translate("MainForm", "Choose file", nullptr));
+        pushButton_File->setText(QCoreApplication::translate("MainForm", "Load file", nullptr));
+        label_2->setText(QCoreApplication::translate("MainForm", "Choose method", nullptr));
+        comboBox->setItemText(0, QCoreApplication::translate("MainForm", "Ray Crossing", nullptr));
+        comboBox->setItemText(1, QCoreApplication::translate("MainForm", "Winding Number", nullptr));
+
+        pushButton_Position->setText(QCoreApplication::translate("MainForm", "Analyze position", nullptr));
         label->setText(QString());
-        pushButton_3->setText(QCoreApplication::translate("MainForm", "Clear", nullptr));
+        label_3->setText(QString());
+        pushButton_Clear->setText(QCoreApplication::translate("MainForm", "Clear", nullptr));
     } // retranslateUi
 
 };
