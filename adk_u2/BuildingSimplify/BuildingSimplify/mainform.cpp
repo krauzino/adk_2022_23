@@ -98,7 +98,8 @@ void MainForm::on_load_data_clicked()
 
     // Convert to string path
     std::string filename = file_path.toStdString();
-
+    if (filename.length() > 0)
+        {
     // Read chosen file
     std::vector<QPolygonF> polygonVector = csvObject.readCSV(filename, xmin, xmax, ymin, ymax);
 
@@ -123,7 +124,7 @@ void MainForm::on_load_data_clicked()
     // Draw polygons
     ui->Canvas->drawPolygons(polygonVector, xtrans, ytrans, xratio, yratio);
 }
-
+}
 
 void MainForm::on_clear_clicked()
 {
