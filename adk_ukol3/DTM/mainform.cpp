@@ -42,7 +42,8 @@ void MainForm::on_actionOpen_triggered()
 
     //Convert to string path
     std::string filename = path.toStdString();
-
+if (filename.length() > 0)
+    {
     //Read the chosen file
     std::vector<std::vector<std::string>> csv_content = CSV::read_csv(filename);
 
@@ -87,7 +88,7 @@ void MainForm::on_actionOpen_triggered()
     //Draw points
     ui->Canvas->drawCSVPoints(points_3d);    
 }
-
+}
 
 void MainForm::on_actionCreate_DT_triggered()
 {
@@ -170,11 +171,20 @@ void MainForm::on_actionAnalyze_slope_triggered()
         ui->Canvas->setDT(dt);
     }
 
+
     // Compute slope
     std::vector<Triangle> triangles = a.analyzeSlope(dt);
+    ui->Canvas->switchSlope();
+
 
     // Update DT
     ui->Canvas->setTriangles(triangles);
+
+    double min = Algorithms::getMinSlope(triangles);
+    double max = Algorithms::getMaxSlope(triangles);
+    ui->Canvas->setMinSlope(min);
+    ui->Canvas->setMaxSlope(max);
+
     repaint();
 }
 
@@ -208,6 +218,11 @@ void MainForm::on_actionAnalyze_aspect_triggered()
     // Update DT
     ui->Canvas->setTriangles(triangles);
 
+    double min = Algorithms::getMinSlope(triangles);
+    double max = Algorithms::getMaxSlope(triangles);
+    ui->Canvas->setMinSlope(min);
+    ui->Canvas->setMaxSlope(max);
+
     repaint();
 }
 
@@ -220,7 +235,7 @@ void MainForm::on_action_2_triggered()
         //Set properties
         zmin = settings.getZmin();
         zmax = settings.getZmax();
-        dz =   settings.getDz();
+        dz = settings.getDz();
     }
 }
 
@@ -233,3 +248,10 @@ void MainForm::on_actionClear_all_triggered()
     repaint();
 }
 
+
+void MainForm::on_actionClear_slope_aspect_triggered()
+{
+    ui->Canvas->clearTriangles();
+    ui->Canvas->clearDT();
+    repaint();
+}

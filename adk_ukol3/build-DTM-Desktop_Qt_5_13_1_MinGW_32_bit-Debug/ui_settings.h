@@ -96,7 +96,7 @@ public:
         groupBox->setTitle(QCoreApplication::translate("Settings", "Contour line properties", nullptr));
         label->setText(QCoreApplication::translate("Settings", "Contour line minimum", nullptr));
         label_2->setText(QCoreApplication::translate("Settings", "m", nullptr));
-        label_3->setText(QCoreApplication::translate("Settings", "Contour line axiimum", nullptr));
+        label_3->setText(QCoreApplication::translate("Settings", "Contour line maximum", nullptr));
         label_4->setText(QCoreApplication::translate("Settings", "m", nullptr));
         label_5->setText(QCoreApplication::translate("Settings", "Contour line interval", nullptr));
         label_6->setText(QCoreApplication::translate("Settings", "m", nullptr));

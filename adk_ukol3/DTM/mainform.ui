@@ -33,7 +33,7 @@
      <x>0</x>
      <y>0</y>
      <width>1155</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -90,6 +90,7 @@
    <addaction name="separator"/>
    <addaction name="action_2"/>
    <addaction name="separator"/>
+   <addaction name="actionClear_slope_aspect"/>
    <addaction name="actionClear_all"/>
   </widget>
   <action name="actionOpen">
@@ -179,7 +180,7 @@
     <string>Options</string>
    </property>
    <property name="toolTip">
-    <string>Set options</string>
+    <string>Settings</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -192,11 +193,23 @@
   </action>
   <action name="actionClear_all">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/bin.png</normaloff>icons/bin.png</iconset>
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/icons/bin.png</normaloff>:/images/icons/bin.png</iconset>
    </property>
    <property name="text">
     <string>Clear all</string>
+   </property>
+  </action>
+  <action name="actionClear_slope_aspect">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/icons/clear_slope_aspect2.png</normaloff>:/images/icons/clear_slope_aspect2.png</iconset>
+   </property>
+   <property name="text">
+    <string>Clear slope/aspect</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear slope or aspect</string>
    </property>
   </action>
  </widget>

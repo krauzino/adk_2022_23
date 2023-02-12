@@ -406,3 +406,26 @@ std::vector<QPoint3D> Algorithms::transformPoints(std::vector<QPoint3D> &points_
     //Compute transformation key
     return points_transformed;
 }
+
+double Algorithms::getMinSlope(std::vector<Triangle> &triangles)
+{
+    double min = 10e13;
+
+    for (Triangle t : triangles)
+    {
+        if (t.getSlope() < min) min = t.getSlope();
+    }
+
+    return min;
+}
+double Algorithms::getMaxSlope(std::vector<Triangle> &triangles)
+{
+    double max = 10e-13;
+
+    for (Triangle t : triangles)
+    {
+        if (t.getSlope() > max) max = t.getSlope();
+    }
+
+    return max;
+}

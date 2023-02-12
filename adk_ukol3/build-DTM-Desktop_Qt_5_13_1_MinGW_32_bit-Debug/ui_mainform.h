@@ -34,6 +34,8 @@ public:
     QAction *actionAnalyze_aspect;
     QAction *action_2;
     QAction *actionAbout;
+    QAction *actionClear_all;
+    QAction *actionClear_slope_aspect;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     Draw *Canvas;
@@ -87,6 +89,16 @@ public:
         action_2->setIcon(icon6);
         actionAbout = new QAction(MainForm);
         actionAbout->setObjectName(QString::fromUtf8("actionAbout"));
+        actionClear_all = new QAction(MainForm);
+        actionClear_all->setObjectName(QString::fromUtf8("actionClear_all"));
+        QIcon icon7;
+        icon7.addFile(QString::fromUtf8(":/images/icons/bin.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionClear_all->setIcon(icon7);
+        actionClear_slope_aspect = new QAction(MainForm);
+        actionClear_slope_aspect->setObjectName(QString::fromUtf8("actionClear_slope_aspect"));
+        QIcon icon8;
+        icon8.addFile(QString::fromUtf8(":/images/icons/clear_slope_aspect2.png"), QSize(), QIcon::Normal, QIcon::Off);
+        actionClear_slope_aspect->setIcon(icon8);
         centralwidget = new QWidget(MainForm);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout = new QVBoxLayout(centralwidget);
@@ -142,6 +154,9 @@ public:
         toolBar->addAction(actionAnalyze_aspect);
         toolBar->addSeparator();
         toolBar->addAction(action_2);
+        toolBar->addSeparator();
+        toolBar->addAction(actionClear_slope_aspect);
+        toolBar->addAction(actionClear_all);
 
         retranslateUi(MainForm);
 
@@ -183,11 +198,16 @@ public:
 #endif // QT_CONFIG(tooltip)
         action_2->setText(QCoreApplication::translate("MainForm", "Options", nullptr));
 #if QT_CONFIG(tooltip)
-        action_2->setToolTip(QCoreApplication::translate("MainForm", "Set options", nullptr));
+        action_2->setToolTip(QCoreApplication::translate("MainForm", "Settings", nullptr));
 #endif // QT_CONFIG(tooltip)
         actionAbout->setText(QCoreApplication::translate("MainForm", "About", nullptr));
 #if QT_CONFIG(tooltip)
         actionAbout->setToolTip(QCoreApplication::translate("MainForm", "About the software", nullptr));
+#endif // QT_CONFIG(tooltip)
+        actionClear_all->setText(QCoreApplication::translate("MainForm", "Clear all", nullptr));
+        actionClear_slope_aspect->setText(QCoreApplication::translate("MainForm", "Clear slope/aspect", nullptr));
+#if QT_CONFIG(tooltip)
+        actionClear_slope_aspect->setToolTip(QCoreApplication::translate("MainForm", "Clear slope or aspect", nullptr));
 #endif // QT_CONFIG(tooltip)
         menuFile->setTitle(QCoreApplication::translate("MainForm", "File", nullptr));
         menuAnalyze->setTitle(QCoreApplication::translate("MainForm", "Analyze", nullptr));

@@ -11,15 +11,17 @@ class Draw : public QWidget
 {
     Q_OBJECT
 
-    private:
+private:
 
-        std::vector <QPoint3D> points;
-        std::vector <Edge> dt;
-        std::vector <Edge> contours;
-        std::vector <Triangle> triangles;
-        double scale;
-        double trans_x, trans_y;
-        int offset_x, offset_y;
+    std::vector <QPoint3D> points;
+    std::vector <Edge> dt;
+    std::vector <Edge> contours;
+    std::vector <Triangle> triangles;
+    double scale;
+    double trans_x, trans_y;
+    int offset_x, offset_y;
+    double minSlope, maxSlope;
+    bool isSlope;
 
 public:
     explicit Draw(QWidget *parent = nullptr);
@@ -45,6 +47,9 @@ public:
     double getTransY(){return trans_y;}
     int getDeltaX(){return offset_x;}
     int getDeltaY(){return offset_y;}
+    void setMinSlope(double min){minSlope = min;}
+    void setMaxSlope(double max){maxSlope = max;}
+    void switchSlope(){isSlope =! isSlope;}
 
 signals:
 

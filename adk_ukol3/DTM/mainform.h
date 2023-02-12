@@ -28,6 +28,8 @@ private slots:
 
     void on_actionExit_triggered();
 
+    void on_actionClear_all_triggered();
+
     void on_actionCreate_contour_lines_triggered();
 
     void on_actionAnalyze_slope_triggered();
@@ -36,7 +38,7 @@ private slots:
 
     void on_action_2_triggered();
 
-    void on_actionClear_all_triggered();
+    void on_actionClear_slope_aspect_triggered();
 
 private:
     Ui::MainForm *ui;

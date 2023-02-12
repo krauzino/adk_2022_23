@@ -65,7 +65,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Contour line axiimum</string>
+       <string>Contour line maximum</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_2">

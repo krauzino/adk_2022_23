@@ -8,5 +8,7 @@
         <file>icons/settings.png</file>
         <file>icons/slope2.png</file>
         <file>icons/triangles2.png</file>
+        <file>icons/bin.png</file>
+        <file>icons/clear_slope_aspect2.png</file>
     </qresource>
 </RCC>

@@ -51,15 +51,29 @@ void Draw::paintEvent(QPaintEvent *event)
         QPoint3D p2 = t.getP2();
         QPoint3D p3 = t.getP3();
 
+        double slope;
+        int col;
 
-        double slope = t.getSlope();
+        if (isSlope)
+        {
+            slope = t.getSlope() - minSlope;
+            slope = slope*((M_PI/2)/(maxSlope-minSlope));
+            col = (255/(M_PI/2))*slope;
+        }
 
-        // Convert slope to RGB
-        double k = 255/M_PI;
-        int col = 255-slope*k;
+        else
+        {
+            slope = t.getAspect();
+            if (slope < 0)
+                slope += 2*M_PI;
+
+            col = -(200/M_PI)*fabs(slope - M_PI) + 200;
+            col = 255 - col;
+        }
 
         //Set color
-        QColor color(col, 0, 0);
+        QColor color;
+        color.setRgb(col, col, col);
         painter.setPen(color);
         painter.setBrush(color);
 
@@ -71,6 +85,7 @@ void Draw::paintEvent(QPaintEvent *event)
 
         //Draw polygon
         painter.drawPolygon(poly);
+
     }
 
 
@@ -82,27 +97,27 @@ void Draw::paintEvent(QPaintEvent *event)
     }
 
     //Draw DT represented by edges
-    painter.setPen(Qt::green);
+    painter.setPen(QPen(Qt::green, 0.18));
     for(Edge e : dt)
     {
-       // Get end points
-       QPoint3D p1 = e.getP1();
-       QPoint3D p2 = e.getP2();
+        // Get end points
+        QPoint3D p1 = e.getP1();
+        QPoint3D p2 = e.getP2();
 
-       // Draw line
-       painter.drawLine(p1, p2);
+        // Draw line
+        painter.drawLine(p1, p2);
     }
 
     // Draw contour lines
     painter.setPen(Qt::gray);
     for(Edge e : contours)
     {
-       // Get end points
-       QPoint3D p1 = e.getP1();
-       QPoint3D p2 = e.getP2();
+        // Get end points
+        QPoint3D p1 = e.getP1();
+        QPoint3D p2 = e.getP2();
 
-       // Draw line
-       painter.drawLine(p1,p2);
+        // Draw line
+        painter.drawLine(p1,p2);
     }
 
     // End draw
