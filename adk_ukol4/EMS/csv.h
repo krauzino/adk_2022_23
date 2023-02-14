@@ -8,8 +8,9 @@
 class CSV
 {
 public:
-    static std::vector<std::vector<std::string>> readCSV(std::string &filename);
-    static std::vector<QPointF> getPoints(std::vector<std::vector<std::string>> &csv_content, double &x_min, double &x_max, double &y_min, double &y_max);
+    CSV();
+    std::vector<QPointF> readCSV(std::string &filename, double &xmin, double &xmax, double &ymin, double &ymax);
+
 };
 
 #endif // CSV_H

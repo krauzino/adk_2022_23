@@ -79,6 +79,7 @@ void MainForm::on_actionOpen_element_triggered()
 {
     // Open file and import data
     // Create min-max box coordinates for loaded data
+    CSV csvObject;
     double x_min =  1e10;
     double x_max = -1e10;
     double y_min =  1e10;
@@ -91,8 +92,7 @@ void MainForm::on_actionOpen_element_triggered()
     std::string filename = path.toStdString();
 
     // Read chosen file
-    std::vector<std::vector<std::string>> csv_content = CSV::readCSV(filename);
-    std::vector<QPointF> pointsElement = CSV::getPoints(csv_content, x_min, x_max, y_min, y_max);
+    std::vector<QPointF> pointsElement = csvObject.readCSV(filename, x_min, x_max, y_min, y_max);
 
     // Get canvas size
     int canvas_width = ui->Canvas->size().width();
@@ -139,6 +139,7 @@ void MainForm::on_actionOpen_barrier_triggered()
 {
     // Open file and import data
     // Create min-max box coordinates for loaded data
+    CSV csvObject;
     double x_min =  1e10;
     double x_max = -1e10;
     double y_min =  1e10;
@@ -151,8 +152,7 @@ void MainForm::on_actionOpen_barrier_triggered()
     std::string filename = path.toStdString();
 
     // Read chosen file
-    std::vector<std::vector<std::string>> csv_content = CSV::readCSV(filename);
-    std::vector<QPointF> pointsBarrier = CSV::getPoints(csv_content, x_min, x_max, y_min, y_max);
+    std::vector<QPointF> pointsBarrier = csvObject.readCSV(filename, x_min, x_max, y_min, y_max);
 
     // Get canvas size
     int canvas_width = ui->Canvas->size().width();

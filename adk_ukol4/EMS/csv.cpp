@@ -8,65 +8,112 @@
 #include <sstream>
 #include <QDir>
 
-std::vector<std::vector<std::string>> CSV::readCSV(std::string &filename)
+CSV::CSV()
 {
-    // Load CSV file into a vector of string vectors
-    std::vector<std::string> lines;
-    std::vector<std::vector<std::string>> result;
+}
+
+std::vector<QPointF> CSV::readCSV(std::string &filename, double &xmin, double &xmax, double &ymin, double &ymax)
+{
+    // Read CSV file and create polygons from it
+    // Vector for storing result
+    std::vector<QPointF> result;
 
     // Supplementary variables
-    std::string csv_line, csv_colnames;
-
-    // Create input filestream
-    std::ifstream myFile(filename);
+    std::string line, column;
+    std::ifstream file(filename);
 
     // Check if file is opened
-    if(!myFile.is_open()) throw std::runtime_error("File not opened.");
+    if(!file.is_open()) throw std::runtime_error("File not opened.");
 
-    // Read file line by line
-    while(std::getline(myFile, csv_line))
+    // Read column names
+    if(file.good())
     {
-        // Create stringstream of current line
-        std::stringstream ss(csv_line);
-        std::string field;
+        // Get first line from file and create stringstream
+        std::getline(file, line);
+        std::stringstream stringstream(line);
 
-        // Go through every field in line
-        while(std::getline(ss, field, ',')) lines.push_back(field);
+        // Get column names
+        while(std::getline(stringstream, column, ',')){
+        }
+    }
 
-        result.push_back(lines);
-        lines.clear();
+    // Read CSV file
+    while(std::getline(file, line))
+    {
+        // Stringstream of the current line
+        std::stringstream stringstream(line);
+
+        // Current column ID
+        int columnID = 0;
+
+        // Supplementary variables
+        int coordinates = 0;
+        int x, y;
+        std::string coordinate_pair, coordinate;
+
+        // Go through all points in polygon
+        while(std::getline(stringstream, coordinate_pair, ','))
+        {
+            std::stringstream ss2(coordinate_pair);
+
+            // Go through all coordinates in point
+            while(std::getline(ss2, coordinate, ' '))
+            {
+                if (coordinate == "")
+                    continue;
+
+                // Coordinate must be x and y
+                if (coordinates < 2)
+                {
+                    // Coordinate x
+                    if (coordinates == 0)
+                    {
+                        // Convert string to integer
+                        x = (std::stod(coordinate));
+
+                        // Update min-max box coordinates
+                        if (x < xmin)
+                            xmin = x;
+
+                        if (x > xmax)
+                            xmax = x;
+
+                        coordinates++;
+                    }
+                    // Coordinate y
+                    else if (coordinates == 1)
+                    {
+                        // Convert string to integer
+                        y = (std::stod(coordinate));
+
+                        // Update min-max box coordinates
+                        if (y < ymin)
+                            ymin = y;
+
+                        if (y > ymax)
+                            ymax = y;
+
+                        coordinates++;
+                    }
+                }
+            }
+
+            // Store coordinates to point
+            if (coordinates == 2)
+            {
+                QPointF p(x,y);
+                result.push_back(p);
+                coordinates = 0;
+            }
+            // Column index
+            columnID++;
+        }
     }
 
     // Close file
-    myFile.close();
+    file.close();
 
     return result;
 }
 
-std::vector<QPointF> CSV::getPoints(std::vector<std::vector<std::string>> &csv_content, double &x_min, double &x_max, double &y_min, double &y_max)
-{
-    // Create vector of points from vector of lines (from CSV file)
-    std::vector<QPointF> points;
-    double x, y;
 
-    // Go through every line
-    for(std::vector<std::string> line:  csv_content)
-    {
-        // Convert string to double
-        x  = -std::stod(line[0]);
-        y  = std::stod(line[1]);
-
-        // Update min-max box
-        if(x < x_min) x_min = x;
-
-        if(x > x_max) x_max = x;
-
-        if(y < y_min) y_min = y;
-
-        if(y > y_max) y_max = y;
-
-        points.push_back(QPointF(x,y));
-    }
-
-    return points;
-}
