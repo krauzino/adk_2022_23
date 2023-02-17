@@ -2,6 +2,7 @@
 #define MAINFORM_H
 
 #include <QMainWindow>
+#include "settings.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainForm; }
@@ -13,6 +14,7 @@ class MainForm : public QMainWindow
 
 private:
     int iterDisplace1, iterDisplace2;
+    Settings settings;
 
 public:
     MainForm(QWidget *parent = nullptr);
@@ -25,6 +27,7 @@ private slots:
     void on_actionDisplace_triggered();
     void on_actionDisplace_2_elements_triggered();
     void on_actionClear_all_triggered();
+    void on_actionSettings_triggered();
 
 private:
     Ui::MainForm *ui;

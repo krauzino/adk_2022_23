@@ -37,11 +37,10 @@
     <addaction name="actionOpen_barrier"/>
     <addaction name="separator"/>
    </widget>
-   <widget class="QMenu" name="menuDisplace">
+   <widget class="QMenu" name="menuSimplify">
     <property name="title">
-     <string>Displace</string>
+     <string>Simplify</string>
     </property>
-    <addaction name="separator"/>
     <addaction name="actionDisplace"/>
     <addaction name="actionDisplace_2_elements"/>
     <addaction name="separator"/>
@@ -61,7 +60,7 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuInput"/>
-   <addaction name="menuDisplace"/>
+   <addaction name="menuSimplify"/>
    <addaction name="menuClear_all"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -75,18 +74,44 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionOpen_element"/>
+   <addaction name="actionOpen_barrier"/>
+   <addaction name="separator"/>
+   <addaction name="actionElement_Barrier"/>
+   <addaction name="separator"/>
+   <addaction name="actionDisplace"/>
+   <addaction name="actionDisplace_2_elements"/>
+   <addaction name="separator"/>
+   <addaction name="actionSettings"/>
+   <addaction name="separator"/>
+   <addaction name="actionClear_all"/>
   </widget>
   <action name="actionOpen_element">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/open_file_element.png</normaloff>:/images/icons/open_file_element.png</iconset>
+   </property>
    <property name="text">
     <string>Open file with element</string>
    </property>
+   <property name="toolTip">
+    <string>Open files</string>
+   </property>
   </action>
   <action name="actionDisplace">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/displace.png</normaloff>:/images/icons/displace.png</iconset>
+   </property>
    <property name="text">
     <string>Displace 1 element</string>
    </property>
   </action>
   <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/settings.png</normaloff>:/images/icons/settings.png</iconset>
+   </property>
    <property name="text">
     <string>Settings</string>
    </property>
@@ -95,21 +120,37 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/switch_el.png</normaloff>:/images/icons/switch_el.png</iconset>
+   </property>
    <property name="text">
     <string>Element/Barrier</string>
    </property>
   </action>
   <action name="actionDisplace_2_elements">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/displace2.png</normaloff>:/images/icons/displace2.png</iconset>
+   </property>
    <property name="text">
     <string>Displace 2 elements</string>
    </property>
   </action>
   <action name="actionOpen_barrier">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/images/icons/open_file_barrier.png</normaloff>:/images/icons/open_file_barrier.png</iconset>
+   </property>
    <property name="text">
     <string>Open file with barrier</string>
    </property>
   </action>
   <action name="actionClear_all">
+   <property name="icon">
+    <iconset theme="save.png" resource="icons.qrc">
+     <normaloff>:/images/icons/bin.png</normaloff>:/images/icons/bin.png</iconset>
+   </property>
    <property name="text">
     <string>Clear all</string>
    </property>
@@ -123,6 +164,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

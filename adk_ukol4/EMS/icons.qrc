@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>icons/bin.png</file>
+        <file>icons/settings.png</file>
+        <file>icons/open_file_element.png</file>
+        <file>icons/open_file_barrier.png</file>
+        <file>icons/switch_el.png</file>
+        <file>icons/displace.png</file>
+        <file>icons/displace2.png</file>
+    </qresource>
+</RCC>

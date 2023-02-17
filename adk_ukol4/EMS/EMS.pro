@@ -22,6 +22,7 @@ SOURCES += \
     main.cpp \
     mainform.cpp \
     matrix.cpp \
+    settings.cpp \
     sortpointsbyx.cpp \
     sortpointsbyy.cpp
 
@@ -31,13 +32,29 @@ HEADERS += \
     draw.h \
     mainform.h \
     matrix.h \
+    settings.h \
     sortpointsbyx.h \
     sortpointsbyy.h
 
 FORMS += \
-    mainform.ui
+    mainform.ui \
+    settings.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    icons/bin.png \
+    icons/contours2.png \
+    icons/exit.png \
+    icons/open_file.png \
+    icons/orientation2.png \
+    icons/save.png \
+    icons/settings.png \
+    icons/slope2.png \
+    icons/triangles2.png
+
+RESOURCES += \
+    icons.qrc

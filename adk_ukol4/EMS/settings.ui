@@ -6,87 +6,100 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>254</width>
-    <height>225</height>
+    <width>221</width>
+    <height>298</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Properties</string>
+   <string>Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Number of iterations</string>
+      <string>Setting parameters</string>
      </property>
-     <widget class="QLabel" name="label">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>40</y>
-        <width>111</width>
-        <height>16</height>
+        <x>21</x>
+        <y>41</y>
+        <width>166</width>
+        <height>201</height>
        </rect>
       </property>
-      <property name="text">
-       <string>Iterations - displace 1</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_IterDisplace1">
-      <property name="geometry">
-       <rect>
-        <x>150</x>
-        <y>40</y>
-        <width>51</width>
-        <height>20</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_3">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>80</y>
-        <width>111</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Iterations - displace 2</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_IterDisplace2">
-      <property name="geometry">
-       <rect>
-        <x>150</x>
-        <y>80</y>
-        <width>51</width>
-        <height>20</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_5">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>130</y>
-        <width>111</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Zatim nepotrebne</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_3">
-      <property name="geometry">
-       <rect>
-        <x>150</x>
-        <y>130</y>
-        <width>31</width>
-        <height>20</height>
-       </rect>
-      </property>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Minimum distance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="lineEdit_dmin"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Alpha</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="lineEdit_alfa"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Beta</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEdit_beta"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Gamma</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="lineEdit_gamma"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Lambda</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="lineEdit_lambda"/>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="lineEdit_IterDisplace1"/>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Iterations - displace 1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLineEdit" name="lineEdit_IterDisplace2"/>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Iterations - displace 2</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
@@ -111,8 +124,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>244</x>
+     <y>438</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -127,11 +140,11 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>244</x>
+     <y>438</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
+     <x>253</x>
      <y>274</y>
     </hint>
    </hints>

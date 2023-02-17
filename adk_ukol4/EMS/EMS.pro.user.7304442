@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 8.0.1, 2023-02-17T17:02:04. -->
+<!-- Written by QtCreator 8.0.1, 2023-02-17T11:54:52. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -235,9 +235,8 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">EMS2</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Tomas/Desktop/odevzdaniadk_230214/U4_ikony/EMS/EMS.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/Tomas/Desktop/odevzdaniadk_230214/U4_ikony/EMS/EMS.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Tomas/Desktop/ADKU444/U4_pracovni_s_nefunkcim_nastavenim/EMS/EMS.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/Tomas/Desktop/ADKU444/U4_pracovni_s_nefunkcim_nastavenim/EMS/EMS.pro</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>

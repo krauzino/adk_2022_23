@@ -39,15 +39,17 @@ void Draw::paintEvent(QPaintEvent *event)
     // Start draw
     painter.begin(this);
 
-    // Draw element from loaded file
+    /* Draw by hand not possible - only load data
+    // Draw element
     painter.setPen(Qt::blue);
-    for(int i = 0; (i < pointsElement.size()-1) && (pointsElement.size() > 1) ; i++)
-        painter.drawLine(pointsElement[i].x(),pointsElement[i].y(),pointsElement[i+1].x(),pointsElement[i+1].y());
+    for(int i = 0; (i < element.size()-1) && (element.size() > 1) ; i++)
+        painter.drawLine(element[i].x(),element[i].y(),element[i+1].x(),element[i+1].y());
 
-    // Draw barrier from loaded file
+    // Draw barrier
     painter.setPen(Qt::red);
-    for(int i = 0; (i < pointsBarrier.size()-1) && (pointsBarrier.size() > 1) ; i++)
-        painter.drawLine(pointsBarrier[i].x(),pointsBarrier[i].y(),pointsBarrier[i+1].x(),pointsBarrier[i+1].y());
+    for(int i = 0; (i < barrier.size()-1) &&(barrier.size() > 1); i++)
+        painter.drawLine(barrier[i].x(),barrier[i].y(),barrier[i+1].x(),barrier[i+1].y());
+    */
 
     // Draw displaced
     painter.setPen(Qt::green);
@@ -58,6 +60,16 @@ void Draw::paintEvent(QPaintEvent *event)
     painter.setPen(Qt::yellow);
     for(int i = 0; (i < displaced2.size()-1) && (displaced2.size() > 1); i++)
         painter.drawLine(displaced2[i].x(),displaced2[i].y(),displaced2[i+1].x(),displaced2[i+1].y());
+
+    // Draw element from loaded file
+    painter.setPen(Qt::blue);
+    for(int i = 0; (i < pointsElement.size()-1) && (pointsElement.size() > 1) ; i++)
+        painter.drawLine(pointsElement[i].x(),pointsElement[i].y(),pointsElement[i+1].x(),pointsElement[i+1].y());
+
+    // Draw barrier from loaded file
+    painter.setPen(Qt::red);
+    for(int i = 0; (i < pointsBarrier.size()-1) && (pointsBarrier.size() > 1) ; i++)
+        painter.drawLine(pointsBarrier[i].x(),pointsBarrier[i].y(),pointsBarrier[i+1].x(),pointsBarrier[i+1].y());
 
     // End draw
     painter.end();
